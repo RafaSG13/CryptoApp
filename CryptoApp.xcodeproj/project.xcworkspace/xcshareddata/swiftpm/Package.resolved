@@ -1,0 +1,15 @@
+{
+  "originHash" : "5539332fc40f8afe8ff85aea1265b691ff75e9081450bc1f2489cfe2702bff35",
+  "pins" : [
+    {
+      "identity" : "rsgnetworkingpackage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RafaSG13/RSGNetworkingPackage.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "10680ef5b1e4c4e36db918e0a81cd283e6c4578d"
+      }
+    }
+  ],
+  "version" : 3
+}
