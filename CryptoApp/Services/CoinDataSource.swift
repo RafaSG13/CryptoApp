@@ -12,6 +12,9 @@ import SwiftUI
 class CoinDataSource {
     @Published var allCoins: [Coin] = []
     @Published var coinMetadata: [Int: Metadata] = [:]
+    @Published var coinImages: [Int: Data] = [:]
+
+    let imageCache = Cache<String, Data>()
 
     init() {
         Task { [weak self] in
@@ -21,6 +24,7 @@ class CoinDataSource {
                 self.allCoins = coins
                 let coinIds = self.allCoins.map { $0.id }
                 try await self.getCoinsMetadata(coinIds: coinIds)
+                await self.getCoinImages()
             } catch {
                 print("Error fetching coins: \(error)")
             }
@@ -59,7 +63,29 @@ class CoinDataSource {
         case .failure(let error):
             print(error.localizedDescription)
         }
+    }
 
+    func getCoinImages() async {
+        let imageUrls = Dictionary(uniqueKeysWithValues: coinMetadata.values.map { ($0.id, $0.logo) })
+        for image in imageUrls {
+
+            if let cached = imageCache.value(forKey: image.value) {
+                coinImages[image.key] = cached
+                continue
+            }
+
+            guard let url = URL(string: image.value) else { return }
+            let request = URLRequest(url: url)
+            let result = await NetworkingManager.shared.request(with: request)
+
+            switch result {
+            case .success(let data):
+                imageCache.insert(data, forKey: image.value) // inserta un objeto en cache tal que Object("https://s2.coinmarketcap.com/static/img/coins/64x64/52.png": ImageData)
+                coinImages[image.key] = data
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
     }
 }
 
