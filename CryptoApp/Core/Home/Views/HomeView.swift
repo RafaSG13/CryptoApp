@@ -21,6 +21,8 @@ struct HomeView: View {
                 .ignoresSafeArea()
             VStack {
                 homeHeaderView
+                StatisticHeaderView(showPortfolio: $showPortfolio)
+                SearchBarView(searchText: $viewModel.searchText)
                 columnsHeader
                 if !showPortfolio {
                     coinsList
@@ -53,7 +55,7 @@ extension HomeView {
                     CircleButtonAnimationView(animate: $showPortfolio)
                 )
             Spacer()
-            Text(showPortfolio ? "Portafolio": "LivePrices")
+            Text(showPortfolio ? "Portfolio": "Live Prices")
                 .animation(.none)
                 .font(.headline)
                 .fontWeight(.heavy)
@@ -75,8 +77,7 @@ extension HomeView {
         List {
             ForEach(viewModel.allCoins) { coin in
                 CoinRowView(coin: coin,
-                            showMarketInfoColumn: false,
-                            viewModel: CircularImageViewModel(with: $viewModel.coinMetadata))
+                            showMarketInfoColumn: false)
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))
             }
         }
@@ -87,8 +88,7 @@ extension HomeView {
         List {
             ForEach(viewModel.allCoins) { coin in
                 CoinRowView(coin: coin,
-                            showMarketInfoColumn: false,
-                            viewModel: CircularImageViewModel(with: $viewModel.coinMetadata))
+                            showMarketInfoColumn: false)
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))
             }
         }

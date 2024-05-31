@@ -13,7 +13,7 @@ struct CoinRowView: View {
     }
     let coin: Coin
     let showMarketInfoColumn: Bool
-    @StateObject var viewModel: CircularImageViewModel
+    @EnvironmentObject private var viewModel: CoinViewModel
 
     var body: some View {
         HStack(spacing: 0) {
@@ -40,20 +40,21 @@ extension CoinRowView {
                 .font(.caption)
                 .foregroundStyle(Color.theme.secondaryTextColor)
                 .frame(minWidth: 30)
-            if let image = viewModel.image {
+            if let image = viewModel.getCoinImage(for: coin.id) {
                 CircularImageView(coinLogo: image)
                     .frame(width: 30, height: 30)
-            } else {
-                Circle()
+            } else if viewModel.isLoading {
+                ProgressView()
                     .frame(width: 30, height: 30)
+            } else{
+                    Circle()
+                        .frame(width: 30, height: 30)
             }
             Text(coin.symbol.uppercased())
                 .font(.headline)
                 .foregroundStyle(Color.theme.accentColor)
                 .frame(minWidth: 30)
                 .padding(.leading, ViewConstants.symbolPadding)
-        }.task {
-            await viewModel.getImage(for: coin)
         }
     }
 
