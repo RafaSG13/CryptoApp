@@ -13,6 +13,7 @@ struct CoinRowView: View {
     }
     let coin: Coin
     let showMarketInfoColumn: Bool
+    @StateObject var viewModel: CircularImageViewModel
 
     var body: some View {
         HStack(spacing: 0) {
@@ -25,10 +26,11 @@ struct CoinRowView: View {
     }
 }
 
-#Preview {
-    CoinRowView(coin: CoinPreviewMock.instance(), showMarketInfoColumn: true)
-        .previewLayout(.sizeThatFits)
-}
+//TODO: ADD MOCK TO VIEWMODEL
+//#Preview {
+//    CoinRowView(coin: CoinPreviewMock.instance(), metadata: MetadataMock.instance(), showMarketInfoColumn: true)
+//        .previewLayout(.sizeThatFits)
+//}
 
 
 extension CoinRowView {
@@ -38,14 +40,20 @@ extension CoinRowView {
                 .font(.caption)
                 .foregroundStyle(Color.theme.secondaryTextColor)
                 .frame(minWidth: 30)
-
-            Circle()
-                .frame(width: 30, height: 30)
+            if let image = viewModel.image {
+                CircularImageView(coinLogo: image)
+                    .frame(width: 30, height: 30)
+            } else {
+                Circle()
+                    .frame(width: 30, height: 30)
+            }
             Text(coin.symbol.uppercased())
                 .font(.headline)
                 .foregroundStyle(Color.theme.accentColor)
                 .frame(minWidth: 30)
                 .padding(.leading, ViewConstants.symbolPadding)
+        }.task {
+            await viewModel.getImage(for: coin)
         }
     }
 

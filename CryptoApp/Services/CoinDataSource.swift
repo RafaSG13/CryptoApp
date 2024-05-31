@@ -7,15 +7,11 @@
 
 import Foundation
 import NetworkingModule
-import Combine
+import SwiftUI
 
-protocol CoinDataSourceProtocol {
-    var allCoins: [Coin] { get }
-}
-
-class CoinDataSource: CoinDataSourceProtocol {
+class CoinDataSource {
     @Published var allCoins: [Coin] = []
-    var cancellable: AnyCancellable?
+    @Published var coinMetadata: [Int: Metadata] = [:]
 
     init() {
         Task { [weak self] in
@@ -23,6 +19,8 @@ class CoinDataSource: CoinDataSourceProtocol {
             do {
                 let coins = try await self.getCoins()
                 self.allCoins = coins
+                let coinIds = self.allCoins.map { $0.id }
+                try await self.getCoinsMetadata(coinIds: coinIds)
             } catch {
                 print("Error fetching coins: \(error)")
             }
@@ -45,15 +43,23 @@ class CoinDataSource: CoinDataSourceProtocol {
         }
     }
 
-    private func getLocalCoins() {
-        guard let data = JSONFile.getJSON() else { return }
-        do {
-            let response = try JSONDecoder().decode(CoinListingResponse.self, from: data)
-            response.data.forEach { self.allCoins.append($0) }
-            print(allCoins.first!)
-        } catch(let error){
-            print("Error in parsing response \(error)")
+    func getCoinsMetadata(coinIds: [Int]) async throws {
+        let queryData = CoinMetadataRequestData(coinIds: coinIds)
+        let endpoint = CoinMetadataEndpoint(with: queryData)
+        guard let request = endpoint.createUrlRequest() else { return }
+        let result = await NetworkingManager.shared.request(with: request)
+        switch result {
+        case .success(let data):
+            do {
+                let response = try JSONDecoder().decode(CoinMetadataResponse.self, from: data)
+                self.coinMetadata = Dictionary(uniqueKeysWithValues: response.data.values.map { ($0.id, $0) })
+            } catch {
+                throw URLError(.badServerResponse)
+            }
+        case .failure(let error):
+            print(error.localizedDescription)
         }
+
     }
 }
 

@@ -14,7 +14,7 @@ final class CoinListingRequestEndpoint {
 
     private var parameters: [String: String] = [
         "cryptocurrency_type" : "coins",
-        "limit" : "20"
+        "limit" : "15"
     ]
 
     private var headers: [String: String] = [

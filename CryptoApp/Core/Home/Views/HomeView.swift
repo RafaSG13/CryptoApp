@@ -11,7 +11,8 @@ struct HomeView: View {
     private enum ViewConstants {
         static let rotationDegrees: Double = 180
     }
-    @EnvironmentObject private var viewModel: HomeViewModel
+
+    @EnvironmentObject private var viewModel: CoinViewModel
     @State private var showPortfolio: Bool = true
 
     var body: some View {
@@ -73,7 +74,9 @@ extension HomeView {
     private var coinsList: some View  {
         List {
             ForEach(viewModel.allCoins) { coin in
-                CoinRowView(coin: coin, showMarketInfoColumn: false)
+                CoinRowView(coin: coin,
+                            showMarketInfoColumn: false,
+                            viewModel: CircularImageViewModel(with: $viewModel.coinMetadata))
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))
             }
         }
@@ -83,7 +86,9 @@ extension HomeView {
     private var portfolioList: some View  {
         List {
             ForEach(viewModel.allCoins) { coin in
-                CoinRowView(coin: coin, showMarketInfoColumn: false)
+                CoinRowView(coin: coin,
+                            showMarketInfoColumn: false,
+                            viewModel: CircularImageViewModel(with: $viewModel.coinMetadata))
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))
             }
         }
