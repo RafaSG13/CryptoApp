@@ -23,7 +23,21 @@ struct StatisticHeaderView: View {
     }
 }
 
-//#Preview {
-//    StatisticHeaderView(showPortfolio: .constant(true))
-//        .environment(CoinViewModel(with: CoinDataSource()))
-//}
+struct StatisticHeaderView_Previews: PreviewProvider {
+    static var previews: some View {
+        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true))
+        Group {
+            StatisticHeaderView(showPortfolio: .constant(true))
+                .environmentObject(viewModel)
+                .previewLayout(.sizeThatFits)
+                .preferredColorScheme(.light)
+
+            StatisticHeaderView(showPortfolio: .constant(true))
+                .environmentObject(viewModel)
+                .previewLayout(.sizeThatFits)
+                .preferredColorScheme(.dark)
+        }
+
+    }
+}
+

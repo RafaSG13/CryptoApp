@@ -9,8 +9,20 @@ import Foundation
 import Combine
 import SwiftUI
 
+protocol CoinViewModelProtocol: ObservableObject {
+    var statistics: [Statistic] { get }
+    var allCoins: [Coin]  { get }
+    var portfolioCoin: [Coin]  { get }
+    var searchText: String  { get }
+    var isLoading: Bool  { get }
+    var coinMetadata: [Int: Metadata]  { get }
+    var coinImages: [Int: Data]  { get }
 
-class CoinViewModel: ObservableObject {
+    func getCoinImage(for coin: Int) -> UIImage?
+}
+
+
+class CoinViewModel: ObservableObject, CoinViewModelProtocol {
     @Published var statistics: [Statistic] = [
         Statistic(title: "Title", value: "230", percentageChange: 1),
         Statistic(title: "Title", value: "230"),
