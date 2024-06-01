@@ -26,13 +26,6 @@ struct CoinRowView: View {
     }
 }
 
-//TODO: ADD MOCK TO VIEWMODEL
-//#Preview {
-//    CoinRowView(coin: CoinPreviewMock.instance(), metadata: MetadataMock.instance(), showMarketInfoColumn: true)
-//        .previewLayout(.sizeThatFits)
-//}
-
-
 extension CoinRowView {
     private var currencyInfoColumn: some View {
         HStack {
@@ -83,5 +76,23 @@ extension CoinRowView {
         }
         .frame(width: UIScreen.main.bounds.width / 3, alignment: .trailing)
         .padding(.trailing, 6)
+    }
+}
+
+
+struct CoinRowView_Previews: PreviewProvider {
+    static var previews: some View {
+        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true))
+        Group {
+            CoinRowView(coin: CoinPreviewMock.instance(), showMarketInfoColumn: true)
+                .environmentObject(viewModel)
+                .preferredColorScheme(.light)
+                .previewLayout(.sizeThatFits)
+
+            CoinRowView(coin: CoinPreviewMock.instance(), showMarketInfoColumn: true)
+                .environmentObject(viewModel)
+                .preferredColorScheme(.dark)
+                .previewLayout(.sizeThatFits)
+        }
     }
 }

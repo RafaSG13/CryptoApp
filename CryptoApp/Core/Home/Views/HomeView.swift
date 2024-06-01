@@ -38,14 +38,6 @@ struct HomeView: View {
     }
 }
 
-#Preview {
-    NavigationView {
-        HomeView()
-            .navigationBarHidden(true)
-    }
-}
-
-
 extension HomeView {
     private var homeHeaderView: some View {
         HStack {
@@ -108,5 +100,25 @@ extension HomeView {
         .font(.caption)
         .foregroundStyle(Color.theme.secondaryTextColor)
         .padding(.horizontal)
+    }
+}
+
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true))
+        Group {
+            NavigationView {
+                HomeView()
+                    .navigationBarHidden(true)
+                    .environmentObject(viewModel)
+                    .preferredColorScheme(.light)
+            }
+            NavigationView {
+                HomeView()
+                    .navigationBarHidden(true)
+                    .environmentObject(viewModel)
+                    .preferredColorScheme(.dark)
+            }
+        }
     }
 }

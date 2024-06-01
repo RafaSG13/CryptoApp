@@ -18,7 +18,6 @@
 		AA2ED6F52C077DD20021BEC0 /* View+NoAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2ED6F42C077DD20021BEC0 /* View+NoAnimation.swift */; };
 		AA2ED6F82C0781030021BEC0 /* Coin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2ED6F72C0781030021BEC0 /* Coin.swift */; };
 		AA2ED6FB2C0787070021BEC0 /* CoinListingRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2ED6FA2C0787070021BEC0 /* CoinListingRequest.swift */; };
-		AA2ED6FE2C0789CD0021BEC0 /* NetworkingModule in Frameworks */ = {isa = PBXBuildFile; productRef = AA2ED6FD2C0789CD0021BEC0 /* NetworkingModule */; };
 		AA3EB79C2C0A1641000C1788 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3EB79B2C0A1641000C1788 /* Cache.swift */; };
 		AA3EB79F2C0A2240000C1788 /* SearchBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3EB79E2C0A2240000C1788 /* SearchBarView.swift */; };
 		AA3EB7A12C0A26AD000C1788 /* UIApplication+Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3EB7A02C0A26AD000C1788 /* UIApplication+Keyboard.swift */; };
@@ -26,6 +25,7 @@
 		AA3EB7A52C0A4CC7000C1788 /* StatisticView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3EB7A42C0A4CC7000C1788 /* StatisticView.swift */; };
 		AA3EB7A72C0A4D05000C1788 /* StatisticPreviewMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3EB7A62C0A4D05000C1788 /* StatisticPreviewMock.swift */; };
 		AA3EB7AA2C0A5127000C1788 /* StatisticHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3EB7A92C0A5127000C1788 /* StatisticHeaderView.swift */; };
+		AA3EB7B02C0B629C000C1788 /* NetworkingModule in Frameworks */ = {isa = PBXBuildFile; productRef = AA3EB7AF2C0B629C000C1788 /* NetworkingModule */; };
 		AA55D1AB2C08D01B009C2BB5 /* CircularImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA55D1AA2C08D01B009C2BB5 /* CircularImageView.swift */; };
 		AA55D1B32C08D2EB009C2BB5 /* CoinMetadataRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA55D1B22C08D2EB009C2BB5 /* CoinMetadataRequest.swift */; };
 		AA55D1B52C08D716009C2BB5 /* CoinMetadataResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA55D1B42C08D716009C2BB5 /* CoinMetadataResponse.swift */; };
@@ -83,7 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA2ED6FE2C0789CD0021BEC0 /* NetworkingModule in Frameworks */,
+				AA3EB7B02C0B629C000C1788 /* NetworkingModule in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,6 +95,7 @@
 			children = (
 				AA2ED6D42C0770070021BEC0 /* CryptoApp */,
 				AA2ED6D32C0770070021BEC0 /* Products */,
+				AA3EB7AE2C0B629C000C1788 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -235,6 +236,13 @@
 			path = StatisticView;
 			sourceTree = "<group>";
 		};
+		AA3EB7AE2C0B629C000C1788 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		AA55D1A92C08CBC5009C2BB5 /* CoinLatestList */ = {
 			isa = PBXGroup;
 			children = (
@@ -314,7 +322,7 @@
 			);
 			name = CryptoApp;
 			packageProductDependencies = (
-				AA2ED6FD2C0789CD0021BEC0 /* NetworkingModule */,
+				AA3EB7AF2C0B629C000C1788 /* NetworkingModule */,
 			);
 			productName = CryptoApp;
 			productReference = AA2ED6D22C0770070021BEC0 /* CryptoApp.app */;
@@ -345,7 +353,7 @@
 			);
 			mainGroup = AA2ED6C92C0770070021BEC0;
 			packageReferences = (
-				AA2ED6FC2C0789CD0021BEC0 /* XCRemoteSwiftPackageReference "RSGNetworkingPackage" */,
+				AA3EB7AB2C0B6272000C1788 /* XCRemoteSwiftPackageReference "RSGNetworkingPackage" */,
 			);
 			productRefGroup = AA2ED6D32C0770070021BEC0 /* Products */;
 			projectDirPath = "";
@@ -610,7 +618,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AA2ED6FC2C0789CD0021BEC0 /* XCRemoteSwiftPackageReference "RSGNetworkingPackage" */ = {
+		AA3EB7AB2C0B6272000C1788 /* XCRemoteSwiftPackageReference "RSGNetworkingPackage" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RafaSG13/RSGNetworkingPackage.git";
 			requirement = {
@@ -621,9 +629,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AA2ED6FD2C0789CD0021BEC0 /* NetworkingModule */ = {
+		AA3EB7AF2C0B629C000C1788 /* NetworkingModule */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AA2ED6FC2C0789CD0021BEC0 /* XCRemoteSwiftPackageReference "RSGNetworkingPackage" */;
+			package = AA3EB7AB2C0B6272000C1788 /* XCRemoteSwiftPackageReference "RSGNetworkingPackage" */;
 			productName = NetworkingModule;
 		};
 /* End XCSwiftPackageProductDependency section */

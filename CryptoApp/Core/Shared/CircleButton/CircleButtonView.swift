@@ -23,9 +23,18 @@ struct CircleButtonView: View {
     }
 }
 
-#Preview {
-    CircleButtonView(iconName: "heart.fill")
-        .padding()
-        .previewLayout(.sizeThatFits)
-        .preferredColorScheme(.dark)
+struct CircleButtonView_Previews: PreviewProvider {
+    static var previews: some View {
+        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true))
+        Group {
+            CircleButtonView(iconName: "heart.fill")
+                .previewLayout(.sizeThatFits)
+                .preferredColorScheme(.light)
+
+            CircleButtonView(iconName: "heart.fill")
+                .previewLayout(.sizeThatFits)
+                .preferredColorScheme(.dark)
+        }
+
+    }
 }

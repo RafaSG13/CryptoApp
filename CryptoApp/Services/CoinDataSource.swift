@@ -9,12 +9,25 @@ import Foundation
 import NetworkingModule
 import SwiftUI
 
+
+protocol CoinDataSourceProtocol {
+    var allCoins: [Coin] { get }
+    var coinMetadata: [Int: Metadata] { get }
+    var coinImages: [Int: Data] { get }
+
+    func getCoinsMetadata(coinIds: [Int]) async throws
+    func getCoinImages() async
+}
+
 class CoinDataSource {
     @Published var allCoins: [Coin] = []
     @Published var coinMetadata: [Int: Metadata] = [:]
     @Published var coinImages: [Int: Data] = [:]
 
     let imageCache = Cache<String, Data>()
+
+    /// Do nothing implementation for previews
+    init(forPreview: Bool? = true) {}
 
     init() {
         Task { [weak self] in

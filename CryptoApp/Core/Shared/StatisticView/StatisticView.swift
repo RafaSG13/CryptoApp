@@ -18,11 +18,13 @@ struct StatisticView: View {
                 .font(.headline)
                 .foregroundStyle(Color.theme.accentColor)
             HStack {
-                Image(systemName: "triangle.fill")
-                    .font(.caption2)
-                    .rotationEffect(Angle(degrees: (stat.percentageChange ?? 0) >= 0
-                                          ? 0
-                                          : 180))
+                if let percentage = stat.percentageChange {
+                    Image(systemName: "triangle.fill")
+                        .font(.caption2)
+                        .rotationEffect(Angle(degrees: percentage >= 0
+                                              ? 0
+                                              : 180))
+                }
                 Text(stat.percentageChange?.asPercentageString() ?? "")
                     .font(.caption)
                     .bold()
