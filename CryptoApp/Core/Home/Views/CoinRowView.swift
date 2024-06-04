@@ -54,10 +54,10 @@ extension CoinRowView {
     private var currencyAmountInMarketColumn: some View {
         HStack {
             VStack(alignment: .trailing) {
-                Text(coin.circulatingSupply.asNumberString())
+                Text(coin.currentHoldingsValue.asCurrencyWith2Decimals())
                     .foregroundStyle(Color.theme.accentColor)
                     .font(.headline)
-                Text((coin.circulatingSupply * (coin.quote["USD"]?.price ?? 0)).asCurrencyWith2Decimals())
+                Text(coin.currentHolding?.asNumberString() ?? "0")
                     .foregroundStyle(Color.theme.secondaryTextColor)
                     .font(.subheadline)
             }

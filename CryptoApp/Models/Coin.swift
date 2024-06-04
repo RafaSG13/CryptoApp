@@ -27,6 +27,7 @@ struct Coin: Codable, Identifiable {
     let cmcRank: Int
     let lastUpdated: String
     let quote: [String: Quote]
+    var currentHolding: Double?
 
     enum CodingKeys: String, CodingKey {
         case id, name, symbol, slug, tags, platform, quote
@@ -37,5 +38,14 @@ struct Coin: Codable, Identifiable {
         case totalSupply = "total_supply"
         case cmcRank = "cmc_rank"
         case lastUpdated = "last_updated"
+        case currentHolding
+    }
+
+    func updateHoldings(amount: Double) -> Coin {
+        return Coin(id: id, name: name, symbol: symbol, slug: slug, numMarketPairs: numMarketPairs, dateAdded: dateAdded, tags: tags, maxSupply: maxSupply, circulatingSupply: circulatingSupply, totalSupply: totalSupply, platform: platform, cmcRank: cmcRank, lastUpdated: lastUpdated, quote: quote, currentHolding: amount)
+    }
+
+    var currentHoldingsValue: Double {
+        return ((currentHolding ?? 0) * (quote["USD"]?.price ?? 0))
     }
 }
