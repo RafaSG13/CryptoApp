@@ -10,7 +10,6 @@ import Combine
 import SwiftUI
 
 protocol CoinViewModelProtocol: ObservableObject {
-    var statistics: [Statistic] { get }
     var allCoins: [Coin]  { get }
     var portfolioCoin: [Coin]  { get }
     var searchText: String  { get }
@@ -22,13 +21,7 @@ protocol CoinViewModelProtocol: ObservableObject {
 }
 
 
-class CoinViewModel: ObservableObject, CoinViewModelProtocol {
-    @Published var statistics: [Statistic] = [
-        Statistic(title: "Title", value: "230", percentageChange: 1),
-        Statistic(title: "Title", value: "230"),
-        Statistic(title: "Title", value: "230", percentageChange: -0.7),
-        Statistic(title: "Title", value: "230", percentageChange: -0.7),
-    ]
+class CoinViewModel: ObservableObject {
     @Published var allCoins: [Coin] = []
     @Published var portfolioCoin: [Coin] = []
     @Published var searchText: String = ""

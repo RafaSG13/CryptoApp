@@ -14,14 +14,19 @@ struct HomeView: View {
 
     @EnvironmentObject private var viewModel: CoinViewModel
     @State private var showPortfolio: Bool = true
+    @State private var showPortfolioView: Bool = false
 
     var body: some View {
         ZStack {
             Color.theme.backgroundColor
                 .ignoresSafeArea()
+                .sheet(isPresented: $showPortfolioView, content: {
+                    PortfolioView()
+                        .environmentObject(viewModel)
+                })
             VStack {
                 homeHeaderView
-                StatisticHeaderView(showPortfolio: $showPortfolio)
+                StatisticHeaderView(showPortfolio: $showPortfolio, marketVM: MarketInfoViewModel(marketDataSource: MarketDataSource()))
                 SearchBarView(searchText: $viewModel.searchText)
                 columnsHeader
                 if !showPortfolio {
@@ -31,7 +36,6 @@ struct HomeView: View {
                     portfolioList
                         .transition(.move(edge: .trailing))
                 }
-
                 Spacer(minLength: 0)
             }
         }
@@ -43,6 +47,11 @@ extension HomeView {
         HStack {
             CircleButtonView(iconName: showPortfolio ? "plus" : "info")
                 .noAnimation()
+                .onTapGesture {
+                    if showPortfolio {
+                        showPortfolioView.toggle()
+                    }
+                }
                 .background(
                     CircleButtonAnimationView(animate: $showPortfolio)
                 )
@@ -78,7 +87,7 @@ extension HomeView {
 
     private var portfolioList: some View  {
         List {
-            ForEach(viewModel.allCoins) { coin in
+            ForEach(viewModel.portfolioCoin) { coin in
                 CoinRowView(coin: coin,
                             showMarketInfoColumn: false)
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))
