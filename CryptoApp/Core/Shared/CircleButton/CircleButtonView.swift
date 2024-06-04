@@ -25,7 +25,6 @@ struct CircleButtonView: View {
 
 struct CircleButtonView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = CoinViewModel(with: CoinDataSource())
         Group {
             CircleButtonView(iconName: "heart.fill")
                 .previewLayout(.sizeThatFits)
