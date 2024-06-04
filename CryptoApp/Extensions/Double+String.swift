@@ -17,7 +17,7 @@ extension Double {
         formatter.locale = Locale(identifier: "en_US") // <- default value
         formatter.currencyCode = "usd" // <- change currency
         formatter.currencySymbol = "$" // <- change symbol
-        formatter.maximumFractionDigits = 6
+        formatter.maximumFractionDigits = 2
         formatter.minimumFractionDigits = 2
         return formatter
     }

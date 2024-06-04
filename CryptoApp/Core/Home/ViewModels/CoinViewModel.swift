@@ -31,6 +31,7 @@ class CoinViewModel: ObservableObject {
 
 
     private let dataSource: CoinDataSource
+    private let portfolioDataService: PortfolioDataSource = PortfolioDataSource()
     private var cancellables = Set<AnyCancellable>()
 
     init(with datasource: CoinDataSource) {
@@ -41,6 +42,10 @@ class CoinViewModel: ObservableObject {
     func getCoinImage(for coin: Int) -> UIImage? {
         guard let data = coinImages[coin], let image = UIImage(data: data) else { return nil }
         return image
+    }
+
+    func updatePortfolio(coin: Coin, amount: Double) {
+        portfolioDataService.updatePortFolio(coin: coin, amount: amount)
     }
 }
 
@@ -60,7 +65,6 @@ private extension CoinViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
-                self.isLoading = false
             } receiveValue: { [weak self] coinImages in
                 guard let self else { return }
                 self.coinImages = coinImages
@@ -81,6 +85,20 @@ private extension CoinViewModel {
                 guard let self else { return }
                 self.allCoins = coinList
             }.store(in: &cancellables)
+
+        $allCoins
+            .combineLatest(portfolioDataService.$savedEntities)
+            .map { (coinModels, portfolioEntities) -> [Coin] in
+                coinModels.compactMap { coin -> Coin? in
+                    guard let entity = portfolioEntities.first(where: { $0.coinId == coin.id }) else { return nil }
+                    return coin.updateHoldings(amount: entity.amount)
+                }
+            }.sink { [weak self] _ in
+                //nothing
+            } receiveValue: { [weak self] returnedCoins in
+                self?.portfolioCoin = returnedCoins
+            }.store(in: &cancellables)
+
     }
 
     func filterCoins(text: String, coins: [Coin]) -> [Coin] {

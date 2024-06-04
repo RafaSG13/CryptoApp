@@ -25,23 +25,18 @@ struct PortfolioView: View {
 
             }
             .navigationTitle("Edit Portfolio")
-            .toolbar(content: {
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack {
-                        Image(systemName: "checkmark")
-                            .opacity(showCheckmark ? 1.0 : 0.0)
-                        Button {
-                            //NOTHING
-                        } label: {
-                            Text("Save".uppercased())
-                        }
-                     }
-                }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) { saveButton }
                 ToolbarItem(placement: .topBarLeading) { XmarkButton() }
-            })
+            }
+            .onChange(of: viewModel.searchText) {
+                if viewModel.searchText == "" { removeSelectedCoin() }
+            }
         }
     }
 }
+
+//MARK: View Components
 
 extension PortfolioView {
     private var coinHorizontalList: some View {
@@ -112,7 +107,43 @@ extension PortfolioView {
         .font(.headline)
     }
 
-    private func getCurrentValue() -> Double {
+    private var saveButton: some View {
+        HStack {
+            Image(systemName: "checkmark")
+                .opacity(showCheckmark ? 1.0 : 0.0)
+            Button {
+                savedButtonPressed()
+            } label: {
+                Text("Save".uppercased())
+            }
+        }
+    }
+}
+
+//MARK: Private functions
+
+private extension PortfolioView {
+    func savedButtonPressed() {
+        guard let coin = selectedCoin, let amount = Double(quantityText) else { return }
+        viewModel.updatePortfolio(coin: coin, amount: amount)
+        withAnimation(.easeIn) {
+            showCheckmark = true
+            removeSelectedCoin()
+        }
+
+        UIApplication.shared.endEditing()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            withAnimation(.easeOut) {
+                showCheckmark = false
+            }
+        }
+    }
+
+    func removeSelectedCoin() {
+        selectedCoin = nil
+    }
+
+    func getCurrentValue() -> Double {
         guard let quantity = Double(quantityText) else { return 0 }
         return quantity * (selectedCoin?.quote["USD"]?.price ?? 0)
     }
