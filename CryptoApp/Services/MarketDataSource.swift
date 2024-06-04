@@ -31,7 +31,7 @@ class MarketDataSource {
         }
     }
 
-    private func getMarketData() async throws -> MarketData {
+    func getMarketData() async throws -> MarketData {
         let endpoint = MarketInfoEndPoint()
         guard let request = endpoint.createUrlRequest() else { throw URLError(.badURL) }
 

@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct CryptoAppApp: App {
-    @StateObject var viewModel = CoinViewModel(with: CoinDataSource())
+    @StateObject var viewModel = CoinViewModel(with: CoinDataSource(), and: MarketDataSource())
     @State private var showLaunchView: Bool = false
 
     init() {

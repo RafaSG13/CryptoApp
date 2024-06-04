@@ -26,7 +26,7 @@ struct HomeView: View {
                 })
             VStack {
                 homeHeaderView
-                StatisticHeaderView(showPortfolio: $showPortfolio, marketVM: MarketInfoViewModel(marketDataSource: MarketDataSource()))
+                StatisticHeaderView(showPortfolio: $showPortfolio)
                 SearchBarView(searchText: $viewModel.searchText)
                 columnsHeader
                 if !showPortfolio {
@@ -98,13 +98,41 @@ extension HomeView {
 
     private var columnsHeader: some View {
         HStack {
-            Text("Coin")
+            HStack(spacing: 4) {
+                Text("Coin")
+                Image(systemName: "chevron.down")
+                    .opacity(viewModel.sortOption == .rank || viewModel.sortOption == .rankReversed ? 1.0 : 0.0)
+                    .rotationEffect(Angle(degrees: viewModel.sortOption == .rank ? 0.00 : 180))
+            }.onTapGesture {
+                withAnimation(.default) {
+                    viewModel.sortOption = viewModel.sortOption == .rank ? .rankReversed : .rank
+                }
+            }
+
             Spacer()
             if showPortfolio {
                 Text("Market Info")
             }
-            Text("Prices")
-                .frame(width: UIScreen.main.bounds.width / 3, alignment: .trailing)
+
+            HStack(spacing: 4) {
+                Text("Prices")
+                    .frame(width: UIScreen.main.bounds.width / 3, alignment: .trailing)
+                Image(systemName: "chevron.down")
+                    .opacity(viewModel.sortOption == .price || viewModel.sortOption == .priceReversed ? 1.0 : 0.0)
+                    .rotationEffect(Angle(degrees: viewModel.sortOption == .price ? 0.00 : 180))
+            }.onTapGesture {
+                withAnimation(.default) {
+                    viewModel.sortOption = viewModel.sortOption == .price ? .priceReversed : .price
+                }
+            }
+
+            Button {
+                withAnimation(.linear(duration: 2)) {
+                    viewModel.reloadData()
+                }
+            } label: {
+                Image(systemName: "goforward")
+            }.rotationEffect(Angle(degrees: viewModel.isLoading ? 360 : 0), anchor: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
         }
         .font(.caption)
         .foregroundStyle(Color.theme.secondaryTextColor)
@@ -114,7 +142,7 @@ extension HomeView {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true))
+        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true), and: MarketDataSource(forPreview: true))
         Group {
             NavigationView {
                 HomeView()

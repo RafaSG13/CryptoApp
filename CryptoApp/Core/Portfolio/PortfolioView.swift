@@ -42,7 +42,7 @@ extension PortfolioView {
     private var coinHorizontalList: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 10) {
-                ForEach(viewModel.allCoins) { coin in
+                ForEach(viewModel.searchText.isEmpty ? viewModel.portfolioCoin : viewModel.allCoins) { coin in
                     VStack {
                         CircularImageView(coinLogo: viewModel.getCoinImage(for: coin.id))
                             .frame(width: 50)
@@ -68,7 +68,7 @@ extension PortfolioView {
                     )
                     .onTapGesture {
                         withAnimation(.easeIn) {
-                            selectedCoin = coin
+                            updateSelectedCoin(coin: coin)
                         }
                     }
                 }
@@ -147,11 +147,22 @@ private extension PortfolioView {
         guard let quantity = Double(quantityText) else { return 0 }
         return quantity * (selectedCoin?.quote["USD"]?.price ?? 0)
     }
+
+    private func updateSelectedCoin(coin: Coin) {
+        selectedCoin = coin
+        if let portfolioCoin = viewModel.portfolioCoin.first(where: { $0.id == coin.id }) {
+            if let amount = portfolioCoin.currentHolding{
+                quantityText = String(amount)
+            } else {
+                quantityText = ""
+            }
+        }
+    }
 }
 
 struct PortfolioView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true))
+        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true), and: MarketDataSource(forPreview: true))
         Group {
             PortfolioView()
                 .environmentObject(viewModel)

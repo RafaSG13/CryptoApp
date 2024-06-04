@@ -45,7 +45,7 @@ class CoinDataSource {
     }
 
 
-    private func getCoins() async throws -> [Coin] {
+    func getCoins() async throws -> [Coin] {
         let endpoint = CoinListingRequestEndpoint()
         guard let request = endpoint.createUrlRequest() else { throw URLError(.badURL) }
 

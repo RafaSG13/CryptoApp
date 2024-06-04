@@ -17,7 +17,7 @@ class PortfolioDataSource {
         self.container = NSPersistentContainer(name: "PortfolioContainer")
         container.loadPersistentStores { _, error in
             if let error = error {
-                print("Error loading coreData")
+                print("Error loading coreData \(error.localizedDescription)")
             }
             self.getPortfolio()
         }

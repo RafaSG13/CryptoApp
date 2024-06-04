@@ -82,7 +82,7 @@ extension CoinRowView {
 
 struct CoinRowView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true))
+        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true), and: MarketDataSource(forPreview: true))
         Group {
             CoinRowView(coin: CoinPreviewMock.instance(), showMarketInfoColumn: true)
                 .environmentObject(viewModel)
