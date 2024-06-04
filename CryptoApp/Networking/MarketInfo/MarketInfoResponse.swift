@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+// MARK: - MarketResponse
+struct MarketInfoResponse: Codable {
+    let data: MarketData
+    let status: Status
+}

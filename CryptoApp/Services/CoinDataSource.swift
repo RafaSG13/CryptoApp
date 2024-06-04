@@ -74,7 +74,7 @@ class CoinDataSource {
                 throw URLError(.badServerResponse)
             }
         case .failure(let error):
-            print(error.localizedDescription)
+            throw NetworkingError.responseError(error: error)
         }
     }
 
@@ -105,5 +105,6 @@ class CoinDataSource {
 extension CoinDataSource {
     private enum NetworkingError: Error {
         case requestError(error: Error)
+        case responseError(error: Error)
     }
 }

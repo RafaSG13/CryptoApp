@@ -8,13 +8,18 @@
 import SwiftUI
 
 struct StatisticHeaderView: View {
- 
-    @EnvironmentObject private var viewModel: CoinViewModel
+    @StateObject private var marketVM: MarketInfoViewModel
     @Binding var showPortfolio: Bool
+
+    init(showPortfolio: Binding<Bool>,
+         marketVM: MarketInfoViewModel = MarketInfoViewModel(marketDataSource: MarketDataSource())) {
+        self._showPortfolio = showPortfolio
+        self._marketVM = StateObject(wrappedValue: marketVM)
+    }
 
     var body: some View {
         HStack {
-            ForEach(viewModel.statistics) { stat in
+            ForEach(marketVM.statistics) { stat in
                 StatisticView(stat: stat)
                     .frame(width: UIScreen.main.bounds.width / 3)
             }
@@ -25,15 +30,13 @@ struct StatisticHeaderView: View {
 
 struct StatisticHeaderView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true))
+        let viewModel = MarketInfoViewModel(marketDataSource: MarketDataSource(forPreview: true))
         Group {
-            StatisticHeaderView(showPortfolio: .constant(true))
-                .environmentObject(viewModel)
+            StatisticHeaderView(showPortfolio: .constant(false), marketVM: viewModel)
                 .previewLayout(.sizeThatFits)
                 .preferredColorScheme(.light)
 
-            StatisticHeaderView(showPortfolio: .constant(true))
-                .environmentObject(viewModel)
+            StatisticHeaderView(showPortfolio: .constant(false), marketVM: viewModel)
                 .previewLayout(.sizeThatFits)
                 .preferredColorScheme(.dark)
         }
