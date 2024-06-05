@@ -23,6 +23,7 @@ struct CoinRowView: View {
             currencyPriceInfo
         }
         .font(.subheadline)
+        .background(Color.theme.backgroundColor) ///This color is key because it causes the view been clickable, if not Spacer() ruins the clickable view
     }
 }
 

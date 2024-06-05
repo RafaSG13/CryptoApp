@@ -29,7 +29,7 @@ class CoinViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var coinMetadata: [Int: Metadata] = [:]
     @Published var coinImages: [Int: Data] = [:]
-    @Published var sortOption: SortingOptions = .rank
+    @Published var sortOption: SortingOptions = .holdings
 
     private let coinDataSource: CoinDataSource
     private let marketDataSource: MarketDataSource
