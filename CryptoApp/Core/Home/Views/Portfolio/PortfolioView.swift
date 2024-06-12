@@ -162,7 +162,7 @@ private extension PortfolioView {
 
 struct PortfolioView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true), and: MarketDataSource(forPreview: true))
+        let viewModel = CoinViewModel(with: CoinDataSourceMock(), and: MarketDataSourceMock())
         Group {
             PortfolioView()
                 .environmentObject(viewModel)
