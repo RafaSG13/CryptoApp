@@ -6,22 +6,27 @@
 //
 
 import Foundation
+import Combine
+import SwiftUI
 
 
 class CoinDetailViewModel: ObservableObject {
-    private let coinDataSource: CoinDataSourceProtocol
+    private let repository: CryptoRepository
     let coin: Coin
 
     @Published var overViewStats: [Statistic] = []
     @Published var additionalStats: [Statistic] = []
 
-    init(coin: Coin, coinDataSource: CoinDataSourceProtocol) {
-        self.coinDataSource = coinDataSource
+    init(coin: Coin, repository: CryptoRepository) {
+        self.repository = repository
         self.coin = coin
     }
 
 
-    ///HAY QUE CREAR UN METODO QUE TE DE EL ARRAY DE ESTADISTICAS QUE TU QUIERAS DE LA COIN SELECCIONADA
-    ///EN RELACION CON LAS STATS
-}
+    func getCoinImage() -> UIImage {
+        guard let data = repository.getRemoteCoinImage(coinId: coin.id),
+              let uiImage = UIImage(data: data) else { return UIImage(systemName: "bitcoinsign.arrow.circlepath")! }
+        return uiImage
+    }
 
+}

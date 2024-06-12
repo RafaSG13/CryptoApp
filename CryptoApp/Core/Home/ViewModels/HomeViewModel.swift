@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-protocol CoinViewModelProtocol: ObservableObject {
+protocol HomeViewModelProtocol: ObservableObject {
     var allCoins: [Coin]  { get }
     var portfolioCoin: [Coin]  { get }
     var searchText: String  { get }
@@ -21,19 +21,18 @@ protocol CoinViewModelProtocol: ObservableObject {
 }
 
 
-class CoinViewModel: ObservableObject {
+class HomeViewModel: ObservableObject {
     @Published var allCoins: [Coin] = []
+    @Published var coinMetadata: [Int: Metadata] = [:]
+    @Published var coinImages: [Int: Data] = [:]
     @Published var portfolioCoin: [Coin] = []
+
     @Published var statistics: [Statistic] = []
     @Published var searchText: String = ""
     @Published var isLoading: Bool = false
-    @Published var coinMetadata: [Int: Metadata] = [:]
-    @Published var coinImages: [Int: Data] = [:]
     @Published var sortOption: SortingOptions = .holdings
 
-    public let coinDataSource: CoinDataSourceProtocol
-    private let marketDataSource: MarketDataSourceProtocol
-    private let portfolioDataSource: PortfolioDataSource = PortfolioDataSource()
+    let repository: CryptoRepository
     private var cancellables = Set<AnyCancellable>()
 
     enum SortingOptions {
@@ -45,20 +44,17 @@ class CoinViewModel: ObservableObject {
         case priceReversed
     }
 
-    init(with coinDatasource: CoinDataSourceProtocol, and marketDataSource: MarketDataSourceProtocol) {
-        self.coinDataSource = coinDatasource
-        self.marketDataSource = marketDataSource
+    init(with repository: CryptoRepository) {
+        self.repository = repository
         addSubscribers()
     }
 
     public func getCoinInfo() async throws {
-        try await coinDataSource.getCoins()
-        try await coinDataSource.getCoinsMetadata()
-        await coinDataSource.getCoinImages()
+        try await repository.getCoinInfo()
     }
 
     public func getMarketInfo() async throws {
-        try await marketDataSource.getMarketData()
+        try await repository.getMarketInfo()
     }
 
     func getCoinImage(for coin: Int) -> UIImage? {
@@ -67,16 +63,17 @@ class CoinViewModel: ObservableObject {
     }
 
     func updatePortfolio(coin: Coin, amount: Double) {
-        portfolioDataSource.updatePortFolio(coin: coin, amount: amount)
+        repository.updatePortfolio(coin: coin, amount: amount)
     }
 
+    //FIXME: No funciona
     func reloadData() {
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
                 self.isLoading = true
-                _ = try await marketDataSource.getMarketData()
-                _ = try await coinDataSource.getCoins()
+                _ = try await repository.getMarketInfo()
+                _ = try await repository.getCoinInfo()
                 self.isLoading = false
             } catch (let error) {
                 print(error.localizedDescription)
@@ -88,7 +85,7 @@ class CoinViewModel: ObservableObject {
 
 //MARK: Private Methods
 
-private extension CoinViewModel {
+private extension HomeViewModel {
 
     func addSubscribers() {
         addCoinMetadataSubscriber()
@@ -146,11 +143,11 @@ private extension CoinViewModel {
 
 // MARK: Subscribers
 
-private extension CoinViewModel {
+private extension HomeViewModel {
 
     func addPortfolioSubscriber() {
-        $allCoins
-            .combineLatest(portfolioDataSource.$savedEntities)
+        repository.allCoins
+            .combineLatest(repository.portfolioCoin)
             .map { (coinModels, portfolioEntities) -> [Coin] in
                 coinModels.compactMap { coin -> Coin? in
                     guard let entity = portfolioEntities.first(where: { $0.coinId == coin.id }) else { return nil }
@@ -164,17 +161,11 @@ private extension CoinViewModel {
     func addAllCoinAndSearchSubscriber() {
         //El filtrado no funciona por que se hace en el datasource cuando hace el fetch
         $searchText
-            .combineLatest(coinDataSource.allCoins, $sortOption)
+            .combineLatest(repository.allCoins, $sortOption)
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .map(filterAndSortCoins)
             .receive(on: DispatchQueue.main)
-            .handleEvents(receiveSubscription: { [weak self] _ in
-                guard let self else { return }
-                self.isLoading = true
-            }).sink { [weak self] _ in
-                guard let self else { return }
-                self.isLoading = false
-            } receiveValue: { [weak self] coinList in
+            .sink { [weak self] coinList in
                 guard let self else { return }
                 self.allCoins = coinList
             }.store(in: &cancellables)
@@ -182,7 +173,7 @@ private extension CoinViewModel {
     }
 
     func addCoinImagesSubscriber() {
-        coinDataSource.coinImages
+        repository.coinImages
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] coinImages in
                 guard let self else { return }
@@ -191,7 +182,7 @@ private extension CoinViewModel {
     }
 
     func addCoinMetadataSubscriber() {
-        coinDataSource.coinMetadata
+        repository.coinsMetadata
             .receive(on: DispatchQueue.main)
             .sink { [weak self] metadata in
                 guard let self else { return }
@@ -200,7 +191,7 @@ private extension CoinViewModel {
     }
 
     func addMarketSubscriber() {
-        marketDataSource.marketDataDriver
+        repository.marketData
             .combineLatest($portfolioCoin)
             .receive(on: DispatchQueue.main)
             .map(getStats)

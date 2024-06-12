@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct CryptoAppApp: App {
-    @StateObject var viewModel = CoinViewModel(with: CoinDataSource(), and: MarketDataSource())
+    @StateObject var viewModel = HomeViewModel(with: CryptoRepository(coinDataSource: CoinDataSource(), marketDataSource: MarketDataSource()))
     @State private var showLaunchView: Bool = false
 
     init() {
@@ -20,7 +20,7 @@ struct CryptoAppApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                NavigationView {
+                NavigationStack {
                     HomeView()
                         .navigationBarHidden(true)
                 }

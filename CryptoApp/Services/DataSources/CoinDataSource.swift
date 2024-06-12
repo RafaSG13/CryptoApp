@@ -15,9 +15,9 @@ protocol CoinDataSourceProtocol {
     var coinMetadata: Published<[Int: Metadata]>.Publisher { get }
     var coinImages: Published<[Int: Data]>.Publisher { get }
 
-    func getCoins() async throws
-    func getCoinsMetadata() async throws
-    func getCoinImages() async
+    func getCoins() async throws -> [Coin]
+    func getCoinsMetadata() async throws -> [Int : Metadata]
+    func getCoinImages() async -> [Int: Data]
 }
 
 class CoinDataSource: CoinDataSourceProtocol {
@@ -33,7 +33,7 @@ class CoinDataSource: CoinDataSourceProtocol {
 
     init() {}
 
-    func getCoins() async throws {
+    func getCoins() async throws -> [Coin] {
         let endpoint = CoinListingRequestEndpoint()
         guard let request = endpoint.createUrlRequest() else { throw URLError(.badURL) }
 
@@ -42,25 +42,27 @@ class CoinDataSource: CoinDataSourceProtocol {
         case .success(let data):
             let coinListingResponse = try JSONDecoder().decode(CoinListingResponse.self, from: data)
             self.coins = Array(coinListingResponse.data)
+            return coins
         case.failure(let error):
             print("Error in parsing response \(error)")
             throw NetworkingError.requestError(error: error)
         }
     }
 
-    func getCoinsMetadata() async throws {
+    func getCoinsMetadata() async throws -> [Int : Metadata]  {
         let coinIds = self.coins.map{ $0.id }
-        guard !coinIds.isEmpty else { return }
+        guard !coinIds.isEmpty else { return [:] }
 
         let queryData = CoinMetadataRequestData(coinIds: coinIds)
         let endpoint = CoinMetadataEndpoint(with: queryData)
-        guard let request = endpoint.createUrlRequest() else { return }
+        guard let request = endpoint.createUrlRequest() else { return [:] }
         let result = await NetworkingManager.shared.request(with: request)
         switch result {
         case .success(let data):
             do {
                 let response = try JSONDecoder().decode(CoinMetadataResponse.self, from: data)
                 self.metadata = Dictionary(uniqueKeysWithValues: response.data.values.map { ($0.id, $0) })
+                return metadata
             } catch {
                 throw URLError(.badServerResponse)
             }
@@ -69,7 +71,7 @@ class CoinDataSource: CoinDataSourceProtocol {
         }
     }
 
-    func getCoinImages() async {
+    func getCoinImages() async -> [Int: Data] {
         let imageUrls = Dictionary(uniqueKeysWithValues: metadata.values.map { ($0.id, $0.logo) })
         for image in imageUrls {
 
@@ -78,7 +80,7 @@ class CoinDataSource: CoinDataSourceProtocol {
                 continue
             }
 
-            guard let url = URL(string: image.value) else { return }
+            guard let url = URL(string: image.value) else { return [:] }
             let request = URLRequest(url: url)
             let result = await NetworkingManager.shared.request(with: request)
 
@@ -90,6 +92,7 @@ class CoinDataSource: CoinDataSourceProtocol {
                 print(error.localizedDescription)
             }
         }
+        return images
     }
 }
 

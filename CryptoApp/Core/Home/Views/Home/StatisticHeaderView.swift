@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct StatisticHeaderView: View {
-    @EnvironmentObject private var coinVM: CoinViewModel
+    @EnvironmentObject private var coinVM: HomeViewModel
     @Binding var showPortfolio: Bool
 
     var body: some View {

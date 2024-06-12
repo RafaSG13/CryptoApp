@@ -68,8 +68,8 @@ class CoinPreviewMock {
                     percentChange90d: 9.37392208,
                     marketCap: 1337656765993.407,
                     marketCapDominance: 52.9045,
-                    fullyDilutedMarketCap: 1425527213803.75, tvl: 23,
-                    lastUpdated: "2024-05-30T11:18:00.000Z"
+                    fullyDilutedMarketCap: 1425527213803.75,
+                    tvl: 23
                 )
             ]
         )

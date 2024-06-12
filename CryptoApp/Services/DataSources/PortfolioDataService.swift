@@ -11,7 +11,8 @@ import CoreData
 
 class PortfolioDataSource {
     private let container: NSPersistentContainer
-    @Published var savedEntities: [Portfolio] = []
+    @Published private var savedEntities: [Portfolio] = []
+    var portfolioEntitiesDriver: Published<[Portfolio]>.Publisher { $savedEntities }
 
     init() {
         self.container = NSPersistentContainer(name: "PortfolioContainer")
