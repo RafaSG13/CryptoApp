@@ -11,27 +11,18 @@ import SwiftUI
 
 
 protocol MarketDataSourceProtocol {
-    var marketData: MarketData? { get }
+    var marketDataDriver: Published<MarketData?>.Publisher { get }
+    func getMarketData() async throws
 }
 
-class MarketDataSource {
-    @Published var marketData: MarketData? = nil
+class MarketDataSource: MarketDataSourceProtocol {
+    
+    @Published private var marketData: MarketData? = nil
+    var marketDataDriver: Published<MarketData?>.Publisher { $marketData }
 
-    /// Do nothing implementation for previews
-    init(forPreview: Bool? = true) {}
+    init() {}
 
-    init() {
-        Task { [weak self] in
-            guard let self else { return }
-            do {
-                self.marketData = try await self.getMarketData()
-            } catch {
-                print("Error fetching coins: \(error)")
-            }
-        }
-    }
-
-    func getMarketData() async throws -> MarketData {
+    func getMarketData() async throws {
         let endpoint = MarketInfoEndPoint()
         guard let request = endpoint.createUrlRequest() else { throw URLError(.badURL) }
 
@@ -39,7 +30,7 @@ class MarketDataSource {
         switch result {
         case .success(let data):
             let marketInfoResponse = try JSONDecoder().decode(MarketInfoResponse.self, from: data)
-            return marketInfoResponse.data
+            self.marketData =  marketInfoResponse.data
         case.failure(let error):
             print("Error in parsing response \(error)")
             throw NetworkingError.requestError(error: error)

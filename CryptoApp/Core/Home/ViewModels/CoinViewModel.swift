@@ -31,8 +31,8 @@ class CoinViewModel: ObservableObject {
     @Published var coinImages: [Int: Data] = [:]
     @Published var sortOption: SortingOptions = .holdings
 
-    private let coinDataSource: CoinDataSource
-    private let marketDataSource: MarketDataSource
+    public let coinDataSource: CoinDataSourceProtocol
+    private let marketDataSource: MarketDataSourceProtocol
     private let portfolioDataSource: PortfolioDataSource = PortfolioDataSource()
     private var cancellables = Set<AnyCancellable>()
 
@@ -45,10 +45,20 @@ class CoinViewModel: ObservableObject {
         case priceReversed
     }
 
-    init(with coinDatasource: CoinDataSource, and marketDataSource: MarketDataSource) {
+    init(with coinDatasource: CoinDataSourceProtocol, and marketDataSource: MarketDataSourceProtocol) {
         self.coinDataSource = coinDatasource
         self.marketDataSource = marketDataSource
         addSubscribers()
+    }
+
+    public func getCoinInfo() async throws {
+        try await coinDataSource.getCoins()
+        try await coinDataSource.getCoinsMetadata()
+        await coinDataSource.getCoinImages()
+    }
+
+    public func getMarketInfo() async throws {
+        try await marketDataSource.getMarketData()
     }
 
     func getCoinImage(for coin: Int) -> UIImage? {
@@ -67,6 +77,7 @@ class CoinViewModel: ObservableObject {
                 self.isLoading = true
                 _ = try await marketDataSource.getMarketData()
                 _ = try await coinDataSource.getCoins()
+                self.isLoading = false
             } catch (let error) {
                 print(error.localizedDescription)
             }
@@ -153,7 +164,7 @@ private extension CoinViewModel {
     func addAllCoinAndSearchSubscriber() {
         //El filtrado no funciona por que se hace en el datasource cuando hace el fetch
         $searchText
-            .combineLatest(coinDataSource.$allCoins, $sortOption)
+            .combineLatest(coinDataSource.allCoins, $sortOption)
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .map(filterAndSortCoins)
             .receive(on: DispatchQueue.main)
@@ -171,7 +182,7 @@ private extension CoinViewModel {
     }
 
     func addCoinImagesSubscriber() {
-        coinDataSource.$coinImages
+        coinDataSource.coinImages
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] coinImages in
                 guard let self else { return }
@@ -180,7 +191,7 @@ private extension CoinViewModel {
     }
 
     func addCoinMetadataSubscriber() {
-        coinDataSource.$coinMetadata
+        coinDataSource.coinMetadata
             .receive(on: DispatchQueue.main)
             .sink { [weak self] metadata in
                 guard let self else { return }
@@ -189,7 +200,7 @@ private extension CoinViewModel {
     }
 
     func addMarketSubscriber() {
-        marketDataSource.$marketData
+        marketDataSource.marketDataDriver
             .combineLatest($portfolioCoin)
             .receive(on: DispatchQueue.main)
             .map(getStats)

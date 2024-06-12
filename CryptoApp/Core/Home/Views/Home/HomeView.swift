@@ -43,7 +43,7 @@ struct HomeView: View {
             }
         }
         .background(
-            NavigationLink(destination: DetailLoadingView(coin: $selectedCoin), isActive: $showDetailView, label: { EmptyView() })
+            NavigationLink(destination: DetailLoadingView(coin: $selectedCoin, datasource: viewModel.coinDataSource), isActive: $showDetailView, label: { EmptyView() })
         )
     }
 }
@@ -144,7 +144,8 @@ extension HomeView {
                 }
             } label: {
                 Image(systemName: "goforward")
-            }.rotationEffect(Angle(degrees: viewModel.isLoading ? 360 : 0), anchor: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                    .rotationEffect(Angle(degrees: viewModel.isLoading ? 360 : 0), anchor: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+            }
         }
         .font(.caption)
         .foregroundStyle(Color.theme.secondaryTextColor)
@@ -162,7 +163,7 @@ private extension HomeView {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = CoinViewModel(with: CoinDataSource(forPreview: true), and: MarketDataSource(forPreview: true))
+        let viewModel = CoinViewModel(with: CoinDataSourceMock(), and: MarketDataSourceMock())
         Group {
             NavigationView {
                 HomeView()

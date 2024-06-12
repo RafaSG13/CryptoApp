@@ -11,41 +11,29 @@ import SwiftUI
 
 
 protocol CoinDataSourceProtocol {
-    var allCoins: [Coin] { get }
-    var coinMetadata: [Int: Metadata] { get }
-    var coinImages: [Int: Data] { get }
+    var allCoins: Published<[Coin]>.Publisher { get }
+    var coinMetadata: Published<[Int: Metadata]>.Publisher { get }
+    var coinImages: Published<[Int: Data]>.Publisher { get }
 
-    func getCoinsMetadata(coinIds: [Int]) async throws
+    func getCoins() async throws
+    func getCoinsMetadata() async throws
     func getCoinImages() async
 }
 
-class CoinDataSource {
-    @Published var allCoins: [Coin] = []
-    @Published var coinMetadata: [Int: Metadata] = [:]
-    @Published var coinImages: [Int: Data] = [:]
+class CoinDataSource: CoinDataSourceProtocol {
+    @Published private var coins: [Coin] = []
+    @Published private var metadata: [Int: Metadata] = [:]
+    @Published private var images: [Int: Data] = [:]
+
+    var allCoins: Published<[Coin]>.Publisher { $coins }
+    var coinMetadata: Published<[Int: Metadata]>.Publisher { $metadata }
+    var coinImages: Published<[Int: Data]>.Publisher { $images }
 
     let imageCache = Cache<String, Data>()
 
-    /// Do nothing implementation for previews
-    init(forPreview: Bool? = true) {}
+    init() {}
 
-    init() {
-        Task { [weak self] in
-            guard let self else { return }
-            do {
-                let coins = try await self.getCoins()
-                self.allCoins = coins
-                let coinIds = self.allCoins.map { $0.id }
-                try await self.getCoinsMetadata(coinIds: coinIds)
-                await self.getCoinImages()
-            } catch {
-                print("Error fetching coins: \(error)")
-            }
-        }
-    }
-
-
-    func getCoins() async throws -> [Coin] {
+    func getCoins() async throws {
         let endpoint = CoinListingRequestEndpoint()
         guard let request = endpoint.createUrlRequest() else { throw URLError(.badURL) }
 
@@ -53,14 +41,17 @@ class CoinDataSource {
         switch result {
         case .success(let data):
             let coinListingResponse = try JSONDecoder().decode(CoinListingResponse.self, from: data)
-            return Array(coinListingResponse.data)
+            self.coins = Array(coinListingResponse.data)
         case.failure(let error):
             print("Error in parsing response \(error)")
             throw NetworkingError.requestError(error: error)
         }
     }
 
-    func getCoinsMetadata(coinIds: [Int]) async throws {
+    func getCoinsMetadata() async throws {
+        let coinIds = self.coins.map{ $0.id }
+        guard !coinIds.isEmpty else { return }
+
         let queryData = CoinMetadataRequestData(coinIds: coinIds)
         let endpoint = CoinMetadataEndpoint(with: queryData)
         guard let request = endpoint.createUrlRequest() else { return }
@@ -69,7 +60,7 @@ class CoinDataSource {
         case .success(let data):
             do {
                 let response = try JSONDecoder().decode(CoinMetadataResponse.self, from: data)
-                self.coinMetadata = Dictionary(uniqueKeysWithValues: response.data.values.map { ($0.id, $0) })
+                self.metadata = Dictionary(uniqueKeysWithValues: response.data.values.map { ($0.id, $0) })
             } catch {
                 throw URLError(.badServerResponse)
             }
@@ -79,11 +70,11 @@ class CoinDataSource {
     }
 
     func getCoinImages() async {
-        let imageUrls = Dictionary(uniqueKeysWithValues: coinMetadata.values.map { ($0.id, $0.logo) })
+        let imageUrls = Dictionary(uniqueKeysWithValues: metadata.values.map { ($0.id, $0.logo) })
         for image in imageUrls {
 
             if let cached = imageCache.value(forKey: image.value) {
-                coinImages[image.key] = cached
+                images[image.key] = cached
                 continue
             }
 
@@ -94,7 +85,7 @@ class CoinDataSource {
             switch result {
             case .success(let data):
                 imageCache.insert(data, forKey: image.value) // inserta un objeto en cache tal que Object("https://s2.coinmarketcap.com/static/img/coins/64x64/52.png": ImageData)
-                coinImages[image.key] = data
+                images[image.key] = data
             case .failure(let error):
                 print(error.localizedDescription)
             }
