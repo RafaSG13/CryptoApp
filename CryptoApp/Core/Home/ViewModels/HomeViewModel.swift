@@ -22,13 +22,15 @@ protocol HomeViewModelProtocol: ObservableObject {
 
 
 class HomeViewModel: ObservableObject {
-    var allCoins: Published<[Coin]>.Publisher { repository.$coins }
+//    var allCoins: Published<[Coin]>.Publisher { repository. }
     @Published var portfolioCoin: [Coin] = []
 
     @Published var statistics: [Statistic] = []
     @Published var searchText: String = ""
     @Published var isLoading: Bool = false
     @Published var sortOption: SortingOptions = .holdings
+    private var cancellables = Set<AnyCancellable>()
+
 
     let repository: CryptoRepository
 
@@ -51,7 +53,7 @@ class HomeViewModel: ObservableObject {
     }
 
     func getCoinImage(for coin: Int) -> UIImage? {
-        guard let data = repository.getRemoteCoinImage(coinId: coin),
+        guard let data = repository.getCoinImage(coinId: coin),
               let image = UIImage(data: data) else { return nil }
         return image
     }
@@ -67,8 +69,8 @@ class HomeViewModel: ObservableObject {
             guard let self else { return }
             do {
                 self.isLoading = true
-                _ = try await repository.getMarketInfo()
-                _ = try await repository.getCoinInfo()
+                try await repository.getMarketInfo()
+                try await repository.getCoinInfo()
                 self.isLoading = false
             } catch (let error) {
                 print(error.localizedDescription)
@@ -82,7 +84,26 @@ class HomeViewModel: ObservableObject {
 
 private extension HomeViewModel {
 
+    func getStats(with data: MarketData?, portfolioCoins: [Coin]) -> [Statistic] {
+        guard let marketData = data else { return [] }
+        var stats: [Statistic] = []
+        let marketCapStat = Statistic(title: "Market Cap",
+                                      value: marketData.quote.usd.totalMarketCap.formattedWithAbbreviations(),
+                                      percentageChange: marketData.quote.usd.totalMarketCapYesterdayPercentageChange)
 
+        let volume24H = Statistic(title: "24H Volume",
+                                  value: marketData.quote.usd.totalVolume24H.formattedWithAbbreviations())
+
+        let btcDominance = Statistic(title: "BTC Dominance",
+                                     value: marketData.btcDominance.asPercentageString())
+
+        let portfolioValue = portfolioCoins.map { $0.currentHoldingsValue }.reduce(0, +)
+
+        let portfolioStat = Statistic(title: "Portfolio Value",
+                                       value: portfolioValue.asCurrencyWith2Decimals())
+        stats.append(contentsOf: [marketCapStat, volume24H, btcDominance, portfolioStat])
+        return stats
+    }
 
     func filterAndSortCoins(text: String, coins: [Coin], sortOption: SortingOptions) -> [Coin] {
         guard !text.isEmpty else  { return coins }
@@ -105,7 +126,7 @@ private extension HomeViewModel {
     }
 
     func getCoinMetadata(for coinId: Int) -> Metadata? {
-        return repository.getRemoteCoinMetadata(coinId: coinId)
+        return repository.getCoinMetadata(coinId: coinId)
     }
 
 }
@@ -113,6 +134,70 @@ private extension HomeViewModel {
 // MARK: Subscribers
 
 private extension HomeViewModel {
+
+    func addSubscribers() {
+        addCoinMetadataSubscriber()
+        addCoinImagesSubscriber()
+        addAllCoinAndSearchSubscriber()
+        addPortfolioSubscriber()
+        addMarketSubscriber()
+    }
+
+    func addPortfolioSubscriber() {
+        repository.coins
+            .combineLatest(repository.portfolioCoins)
+            .map { (coinModels, portfolioEntities) -> [Coin] in
+                coinModels.compactMap { coin -> Coin? in
+                    guard let entity = portfolioEntities.first(where: { $0.coinId == coin.id }) else { return nil }
+                    return coin.updateHoldings(amount: entity.amount)
+                }
+            }.sink(receiveValue: { [weak self] returnedCoins in
+                self?.portfolioCoin = returnedCoins
+            }).store(in: &cancellables)
+    }
+
+    func addAllCoinAndSearchSubscriber() {
+        //El filtrado no funciona por que se hace en el datasource cuando hace el fetch
+        $searchText
+            .combineLatest(repository.coins, $sortOption)
+            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
+            .map(filterAndSortCoins)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] coinList in
+                guard let self else { return }
+                self.repository.updateCoins(with: coinList)
+            }.store(in: &cancellables)
+
+    }
+
+    func addCoinImagesSubscriber() {
+        repository.coinImages
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] coinImages in
+                guard let self else { return }
+                self.repository.updateImages(with: coinImages)
+            }).store(in: &cancellables)
+    }
+
+    func addCoinMetadataSubscriber() {
+        repository.coinsMetadata
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] metadata in
+                guard let self else { return }
+                self.repository.updateMetadata(with: metadata)
+            }.store(in: &cancellables)
+    }
+
+    func addMarketSubscriber() {
+        repository.marketData
+            .combineLatest($portfolioCoin)
+            .receive(on: DispatchQueue.main)
+            .map(getStats)
+            .sink { [weak self] statistics in
+                guard let self else { return }
+                self.statistics = statistics
+            }.store(in: &cancellables)
+    }
 
 
 }

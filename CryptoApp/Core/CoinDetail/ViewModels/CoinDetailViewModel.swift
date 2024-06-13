@@ -10,7 +10,7 @@ import Combine
 import SwiftUI
 
 
-class CoinDetailViewModel: ObservableObject {
+final class CoinDetailViewModel: ObservableObject {
     private let repository: CryptoRepository
     let coin: Coin
 
@@ -24,7 +24,7 @@ class CoinDetailViewModel: ObservableObject {
 
 
     func getCoinImage() -> UIImage {
-        guard let data = repository.getRemoteCoinImage(coinId: coin.id),
+        guard let data = repository.getCoinImage(coinId: coin.id),
               let uiImage = UIImage(data: data) else { return UIImage(systemName: "bitcoinsign.arrow.circlepath")! }
         return uiImage
     }

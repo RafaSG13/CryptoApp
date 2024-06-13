@@ -83,7 +83,9 @@ extension CoinRowView {
 
 struct CoinRowView_Previews: PreviewProvider {
     static var previews: some View {
-        let repo = CryptoRepository(coinDataSource: CoinDataSource(), marketDataSource: MarketDataSource())
+        let repo = CryptoRepository(coinDataSource: CoinDataSourceMock(),
+                                    marketDataSource: MarketDataSourceMock(),
+                                    portfolioDataSource: MockPortfolioDataSource())
         let viewModel = HomeViewModel(with: repo)
         Group {
             CoinRowView(coin: CoinPreviewMock.instance(), showMarketInfoColumn: true)

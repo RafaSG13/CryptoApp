@@ -5,145 +5,64 @@
 //  Created by Rafael Serrano Gamarra on 12/6/24.
 //
 
-import Foundation
 import Combine
+import Foundation
+import SwiftUI
 
-
-final class CryptoRepository: ObservableObject {
+final class CryptoRepository {
     private let coinDataSource: CoinDataSourceProtocol
     private let marketDataSource: MarketDataSourceProtocol
-    private let portfolioDataSource: PortfolioDataSource = PortfolioDataSource()
+    private let portfolioDataSource: PortfolioDataSourceProtocol
 
-    @Published var coins: [Coin] = []
-    @Published private var metadata: [Int: Metadata] = [:]
-    @Published private var images: [Int: Data] = [:]
-    @Published private var market: MarketData? = nil
-
-    var allCoins: Published<[Coin]>.Publisher { $coins }
-    var coinsMetadata: Published<[Int: Metadata]>.Publisher { $metadata }
-    var coinImages: Published<[Int: Data]>.Publisher { $images }
-    var marketData: Published<MarketData?>.Publisher { $market}
-    var portfolioCoin: Published<[Portfolio]>.Publisher { portfolioDataSource.portfolioEntitiesDriver}
-    private var cancellables = Set<AnyCancellable>()
+    var coins: Published<[Coin]>.Publisher { coinDataSource.coinDriver }
+    var coinsMetadata: Published<[Int: Metadata]>.Publisher { coinDataSource.metadataDriver }
+    var coinImages: Published<[Int: Data]>.Publisher { coinDataSource.imagesDriver }
+    var marketData: Published<MarketData?>.Publisher { marketDataSource.driver }
+    var portfolioCoins: Published<[Portfolio]>.Publisher { portfolioDataSource.portfolioDriver }
 
 
-
-    init(coinDataSource: CoinDataSourceProtocol, marketDataSource: MarketDataSourceProtocol) {
+    init(coinDataSource: CoinDataSourceProtocol,
+         marketDataSource: MarketDataSourceProtocol,
+         portfolioDataSource: PortfolioDataSourceProtocol) {
         self.coinDataSource = coinDataSource
         self.marketDataSource = marketDataSource
+        self.portfolioDataSource = portfolioDataSource
     }
 
     public func getCoinInfo() async throws {
-        coins = try await coinDataSource.getCoins()
-        metadata = try await coinDataSource.getCoinsMetadata()
-        images = await coinDataSource.getCoinImages()
+        try await coinDataSource.fetchCoins()
+        try await coinDataSource.fetchMetadata()
+        await coinDataSource.fetchCoinImages()
     }
 
     public func getMarketInfo() async throws {
-        market = try await marketDataSource.getMarketData()
+        try await marketDataSource.fetchMarketData()
     }
 
-    func getRemoteCoinImage(coinId: Int) -> Data? {
-        return images[coinId]
+    func getCoinImage(coinId: Int) -> Data? {
+        let coinImages = coinDataSource.readImages()
+        guard let data = coinImages[coinId] else { return nil }
+        return data
     }
 
-    func getRemoteCoinMetadata(coinId: Int) -> Metadata? {
-        return metadata[coinId]
+    func getCoinMetadata(coinId: Int) -> Metadata? {
+        let coinMetadata = coinDataSource.readMetadata()
+        return coinMetadata[coinId]
     }
 
-    public func updatePortfolio(coin: Coin, amount: Double) {
+    func updatePortfolio(coin: Coin, amount: Double) {
         portfolioDataSource.updatePortFolio(coin: coin, amount: amount)
     }
-}
 
+    func updateCoins(with newCoins: [Coin]) {
+        coinDataSource.updateCoins(newCoins)
+    }    
 
-extension CryptoRepository {
-
-    func addSubscribers() {
-        addCoinMetadataSubscriber()
-        addCoinImagesSubscriber()
-//        addAllCoinAndSearchSubscriber()
-        addPortfolioSubscriber()
-//        addMarketSubscriber()
+    func updateMetadata(with newMetadata: [Int: Metadata]) {
+        coinDataSource.updateMetadata(newMetadata)
     }
 
-    func addPortfolioSubscriber() {
-        $coins
-            .combineLatest(portfolioCoin)
-            .map { (coinModels, portfolioEntities) -> [Coin] in
-                coinModels.compactMap { coin -> Coin? in
-                    guard let entity = portfolioEntities.first(where: { $0.coinId == coin.id }) else { return nil }
-                    return coin.updateHoldings(amount: entity.amount)
-                }
-            }.sink(receiveValue: { [weak self] returnedCoins in
-                self?.portfolioCoin = returnedCoins
-            }).store(in: &cancellables)
-    }
-
-//    func addAllCoinAndSearchSubscriber() {
-//        //El filtrado no funciona por que se hace en el datasource cuando hace el fetch
-//        $searchText
-//            .combineLatest(coins, $sortOption)
-//            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
-//            .map(filterAndSortCoins)
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] coinList in
-//                guard let self else { return }
-//                self.coins = coinList
-//            }.store(in: &cancellables)
-//
-//    }
-
-    func addCoinImagesSubscriber() {
-        $images
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] coinImages in
-                guard let self else { return }
-                self.images = coinImages
-            }).store(in: &cancellables)
-    }
-
-    func addCoinMetadataSubscriber() {
-        $metadata
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] metadata in
-                guard let self else { return }
-                self.metadata = metadata
-            }.store(in: &cancellables)
-    }
-
-    func addMarketSubscriber() {
-        $market
-            .combineLatest($portfolioCoin)
-            .receive(on: DispatchQueue.main)
-            .map(getStats)
-            .sink { [weak self] statistics in
-                guard let self else { return }
-                self.statistics = statistics
-            }.store(in: &cancellables)
-    }
-
-}
-
-private extension CryptoRepository {
-    func getStats(with data: MarketData?, portfolioCoins: [Coin]) -> [Statistic] {
-        guard let marketData = data else { return [] }
-        var stats: [Statistic] = []
-        let marketCapStat = Statistic(title: "Market Cap",
-                                      value: marketData.quote.usd.totalMarketCap.formattedWithAbbreviations(),
-                                      percentageChange: marketData.quote.usd.totalMarketCapYesterdayPercentageChange)
-
-        let volume24H = Statistic(title: "24H Volume",
-                                  value: marketData.quote.usd.totalVolume24H.formattedWithAbbreviations())
-
-        let btcDominance = Statistic(title: "BTC Dominance",
-                                     value: marketData.btcDominance.asPercentageString())
-
-        let portfolioValue = portfolioCoins.map { $0.currentHoldingsValue }.reduce(0, +)
-
-        let portfolioStat = Statistic(title: "Portfolio Value",
-                                       value: portfolioValue.asCurrencyWith2Decimals())
-        stats.append(contentsOf: [marketCapStat, volume24H, btcDominance, portfolioStat])
-        return stats
+    func updateImages(with newImages: [Int: Data]) {
+        coinDataSource.updateImages(newImages)
     }
 }
