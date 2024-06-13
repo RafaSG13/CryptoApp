@@ -22,8 +22,11 @@ protocol HomeViewModelProtocol: ObservableObject {
 
 
 class HomeViewModel: ObservableObject {
-//    var allCoins: Published<[Coin]>.Publisher { repository. }
+    @Published var allCoins: [Coin] = []
     @Published var portfolioCoin: [Coin] = []
+    @Published var images: [Int: Data] = [:]
+    @Published var metadata: [Int: Metadata] = [:]
+
 
     @Published var statistics: [Statistic] = []
     @Published var searchText: String = ""
@@ -48,6 +51,7 @@ class HomeViewModel: ObservableObject {
     }
 
     public func setViewModel() async throws {
+        await addSubscribers()
         try await repository.getCoinInfo()
         try await repository.getMarketInfo()
     }
@@ -135,6 +139,7 @@ private extension HomeViewModel {
 
 private extension HomeViewModel {
 
+    @MainActor 
     func addSubscribers() {
         addCoinMetadataSubscriber()
         addCoinImagesSubscriber()
@@ -151,41 +156,30 @@ private extension HomeViewModel {
                     guard let entity = portfolioEntities.first(where: { $0.coinId == coin.id }) else { return nil }
                     return coin.updateHoldings(amount: entity.amount)
                 }
-            }.sink(receiveValue: { [weak self] returnedCoins in
-                self?.portfolioCoin = returnedCoins
-            }).store(in: &cancellables)
+            }.assign(to: &$portfolioCoin)
     }
 
     func addAllCoinAndSearchSubscriber() {
-        //El filtrado no funciona por que se hace en el datasource cuando hace el fetch
+        //Lo que no funciona es el orden
         $searchText
             .combineLatest(repository.coins, $sortOption)
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .map(filterAndSortCoins)
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] coinList in
-                guard let self else { return }
-                self.repository.updateCoins(with: coinList)
-            }.store(in: &cancellables)
+            .assign(to: &$allCoins)
 
     }
 
     func addCoinImagesSubscriber() {
         repository.coinImages
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] coinImages in
-                guard let self else { return }
-                self.repository.updateImages(with: coinImages)
-            }).store(in: &cancellables)
+            .assign(to: &$images)
     }
 
     func addCoinMetadataSubscriber() {
         repository.coinsMetadata
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] metadata in
-                guard let self else { return }
-                self.repository.updateMetadata(with: metadata)
-            }.store(in: &cancellables)
+            .assign(to: &$metadata)
     }
 
     func addMarketSubscriber() {
@@ -193,10 +187,7 @@ private extension HomeViewModel {
             .combineLatest($portfolioCoin)
             .receive(on: DispatchQueue.main)
             .map(getStats)
-            .sink { [weak self] statistics in
-                guard let self else { return }
-                self.statistics = statistics
-            }.store(in: &cancellables)
+            .assign(to: &$statistics)
     }
 
 

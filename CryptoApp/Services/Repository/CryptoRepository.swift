@@ -29,12 +29,14 @@ final class CryptoRepository {
         self.portfolioDataSource = portfolioDataSource
     }
 
+    @MainActor
     public func getCoinInfo() async throws {
         try await coinDataSource.fetchCoins()
         try await coinDataSource.fetchMetadata()
         await coinDataSource.fetchCoinImages()
     }
 
+    @MainActor
     public func getMarketInfo() async throws {
         try await marketDataSource.fetchMarketData()
     }

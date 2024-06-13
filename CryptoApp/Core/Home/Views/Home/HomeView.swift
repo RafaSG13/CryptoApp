@@ -82,7 +82,7 @@ extension HomeView {
 
     private var coinsList: some View  {
         List {
-            ForEach(viewModel.repository.coins) { coin in
+            ForEach(viewModel.allCoins) { coin in
                 CoinRowView(coin: coin,
                             showMarketInfoColumn: false)
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))
@@ -163,7 +163,9 @@ private extension HomeView {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        let repo = CryptoRepository(coinDataSource: CoinDataSourceMock(), marketDataSource: MarketDataSourceMock(), portfolioDataSource: MockPortfolioDataSource())
+        let repo = CryptoRepository(coinDataSource: CoinDataSourceMock(),
+                                    marketDataSource: MarketDataSourceMock(),
+                                    portfolioDataSource: PortfolioDataSourceMock())
         let viewModel = HomeViewModel(with: repo)
         Group {
             NavigationView {

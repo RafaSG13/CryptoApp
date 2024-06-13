@@ -41,6 +41,7 @@ final class CoinDataSource: CoinDataSourceProtocol {
 
     let imageCache = Cache<String, Data>()
 
+    @MainActor
     func fetchCoins() async throws {
         let endpoint = CoinListingRequestEndpoint()
         guard let request = endpoint.createUrlRequest() else { throw URLError(.badURL) }
@@ -56,6 +57,7 @@ final class CoinDataSource: CoinDataSourceProtocol {
         }
     }
 
+    @MainActor
     func fetchMetadata() async throws  {
         let coinIds = self.coins.map{ $0.id }
         guard !coinIds.isEmpty else { return }
@@ -77,6 +79,7 @@ final class CoinDataSource: CoinDataSourceProtocol {
         }
     }
 
+    @MainActor
     func fetchCoinImages() async {
         let imageUrls = Dictionary(uniqueKeysWithValues: metadata.values.map { ($0.id, $0.logo) })
         for image in imageUrls {
