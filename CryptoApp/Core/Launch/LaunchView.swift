@@ -12,8 +12,6 @@ struct LaunchView: View {
     @State private var showLoading: Bool = false
     private let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
     @State private var counter: Int = 0
-    @State private var loop: Int = 0
-    @Binding var showHomeScreen: Bool
 
     var body: some View {
         ZStack {
@@ -46,10 +44,6 @@ struct LaunchView: View {
                 let lastIndex = loadingText.count - 1
                 if counter == lastIndex {
                     counter = 0
-                    loop += 1
-                    if loop >= 2 {
-                        showHomeScreen = true
-                    }
                 } else {
                     counter += 1
                 }
@@ -59,5 +53,5 @@ struct LaunchView: View {
 }
 
 #Preview {
-    LaunchView(showHomeScreen: .constant(false))
+    LaunchView()
 }
