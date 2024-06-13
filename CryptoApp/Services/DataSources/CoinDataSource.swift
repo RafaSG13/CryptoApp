@@ -11,29 +11,38 @@ import SwiftUI
 
 
 protocol CoinDataSourceProtocol {
-    var allCoins: Published<[Coin]>.Publisher { get }
-    var coinMetadata: Published<[Int: Metadata]>.Publisher { get }
-    var coinImages: Published<[Int: Data]>.Publisher { get }
+    var coinDriver: Published<[Coin]>.Publisher { get }
+    var imagesDriver: Published<[Int: Data]>.Publisher { get }
+    var metadataDriver: Published<[Int: Metadata]>.Publisher { get }
 
-    func getCoins() async throws
-    func getCoinsMetadata() async throws
-    func getCoinImages() async
+    func fetchCoins() async throws
+    func fetchMetadata() async throws
+    func fetchCoinImages() async
+
+    func readCoins() -> [Coin]
+    func readImages() -> [Int: Data]
+    func readMetadata() -> [Int: Metadata]
+
+    func updateCoins(_ coins: [Coin])
+    func updateImages(_ images: [Int: Data])
+    func updateMetadata(_ metadata: [Int: Metadata])
 }
 
-class CoinDataSource: CoinDataSourceProtocol {
+final class CoinDataSource: CoinDataSourceProtocol {
     @Published private var coins: [Coin] = []
     @Published private var metadata: [Int: Metadata] = [:]
     @Published private var images: [Int: Data] = [:]
 
-    var allCoins: Published<[Coin]>.Publisher { $coins }
-    var coinMetadata: Published<[Int: Metadata]>.Publisher { $metadata }
-    var coinImages: Published<[Int: Data]>.Publisher { $images }
+    var coinDriver: Published<[Coin]>.Publisher { $coins }
+    var imagesDriver: Published<[Int : Data]>.Publisher { $images }
+    var metadataDriver: Published<[Int : Metadata]>.Publisher { $metadata}
+
+
 
     let imageCache = Cache<String, Data>()
 
-    init() {}
-
-    func getCoins() async throws {
+    @MainActor
+    func fetchCoins() async throws {
         let endpoint = CoinListingRequestEndpoint()
         guard let request = endpoint.createUrlRequest() else { throw URLError(.badURL) }
 
@@ -48,7 +57,8 @@ class CoinDataSource: CoinDataSourceProtocol {
         }
     }
 
-    func getCoinsMetadata() async throws {
+    @MainActor
+    func fetchMetadata() async throws  {
         let coinIds = self.coins.map{ $0.id }
         guard !coinIds.isEmpty else { return }
 
@@ -69,7 +79,8 @@ class CoinDataSource: CoinDataSourceProtocol {
         }
     }
 
-    func getCoinImages() async {
+    @MainActor
+    func fetchCoinImages() async {
         let imageUrls = Dictionary(uniqueKeysWithValues: metadata.values.map { ($0.id, $0.logo) })
         for image in imageUrls {
 
@@ -90,6 +101,30 @@ class CoinDataSource: CoinDataSourceProtocol {
                 print(error.localizedDescription)
             }
         }
+    }
+
+    func readCoins() -> [Coin] {
+        return coins
+    }
+
+    func readImages() -> [Int : Data] {
+        return images
+    }
+
+    func readMetadata() -> [Int : Metadata] {
+        return metadata
+    }
+
+    func updateCoins(_ coins: [Coin]) {
+        self.coins = coins
+    }
+
+    func updateImages(_ images: [Int : Data]) {
+        self.images = images
+    }
+
+    func updateMetadata(_ metadata: [Int : Metadata]) {
+        self.metadata = metadata
     }
 }
 

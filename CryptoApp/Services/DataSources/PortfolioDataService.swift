@@ -8,10 +8,16 @@
 import Foundation
 import CoreData
 
+protocol PortfolioDataSourceProtocol {
+    var portfolioDriver: Published<[Portfolio]>.Publisher { get }
+    func updatePortFolio(coin: Coin, amount: Double)
+}
 
-class PortfolioDataSource {
+
+class PortfolioDataSource: PortfolioDataSourceProtocol {
     private let container: NSPersistentContainer
-    @Published var savedEntities: [Portfolio] = []
+    @Published private var savedEntities: [Portfolio] = []
+    var portfolioDriver: Published<[Portfolio]>.Publisher { $savedEntities }
 
     init() {
         self.container = NSPersistentContainer(name: "PortfolioContainer")

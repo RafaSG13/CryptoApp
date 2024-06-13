@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PortfolioView: View {
-    @EnvironmentObject private var viewModel: CoinViewModel
+    @EnvironmentObject private var viewModel: HomeViewModel
     @State private var selectedCoin: Coin? = nil
     @State private var quantityText: String = ""
     @State private var showCheckmark: Bool = false
@@ -162,7 +162,10 @@ private extension PortfolioView {
 
 struct PortfolioView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = CoinViewModel(with: CoinDataSourceMock(), and: MarketDataSourceMock())
+        let repo = CryptoRepository(coinDataSource: CoinDataSourceMock(),
+                                    marketDataSource: MarketDataSourceMock(),
+                                    portfolioDataSource: PortfolioDataSourceMock())
+        let viewModel = HomeViewModel(with: repo)
         Group {
             PortfolioView()
                 .environmentObject(viewModel)

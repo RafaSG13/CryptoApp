@@ -20,7 +20,6 @@ struct Quote: Codable {
     let marketCapDominance: Double
     let fullyDilutedMarketCap: Double
     let tvl: Double?
-    let lastUpdated: String
 
     enum CodingKeys: String, CodingKey {
         case price
@@ -36,6 +35,5 @@ struct Quote: Codable {
         case marketCapDominance = "market_cap_dominance"
         case fullyDilutedMarketCap = "fully_diluted_market_cap"
         case tvl
-        case lastUpdated = "last_updated"
     }
 }

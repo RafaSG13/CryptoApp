@@ -9,7 +9,9 @@ import SwiftUI
 
 @main
 struct CryptoAppApp: App {
-    @StateObject var viewModel = CoinViewModel(with: CoinDataSource(), and: MarketDataSource())
+    @StateObject var viewModel = HomeViewModel(with: CryptoRepository(coinDataSource: CoinDataSource(),
+                                                                      marketDataSource: MarketDataSource(),
+                                                                      portfolioDataSource: PortfolioDataSource()))
     @State private var showLaunchView: Bool = false
 
     init() {
@@ -20,7 +22,7 @@ struct CryptoAppApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                NavigationView {
+                NavigationStack {
                     HomeView()
                         .navigationBarHidden(true)
                 }
@@ -33,8 +35,7 @@ struct CryptoAppApp: App {
             .zIndex(2.0)
             .task(priority: .high) {
                 do {
-                    try await viewModel.getCoinInfo()
-                    try await viewModel.getMarketInfo()
+                    try await viewModel.setViewModel()
                 } catch let error {
                     print(error.localizedDescription)
                 }

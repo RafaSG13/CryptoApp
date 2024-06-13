@@ -12,7 +12,7 @@ struct HomeView: View {
         static let rotationDegrees: Double = 180
     }
 
-    @EnvironmentObject private var viewModel: CoinViewModel
+    @EnvironmentObject private var viewModel: HomeViewModel
     @State private var showPortfolio: Bool = true
     @State private var showPortfolioView: Bool = false
 
@@ -42,9 +42,9 @@ struct HomeView: View {
                 Spacer(minLength: 0)
             }
         }
-        .background(
-            NavigationLink(destination: DetailLoadingView(coin: $selectedCoin, datasource: viewModel.coinDataSource), isActive: $showDetailView, label: { EmptyView() })
-        )
+        .navigationDestination(isPresented: $showDetailView,destination: {
+            DetailLoadingView(coin: $selectedCoin, repository: viewModel.repository)
+        })
     }
 }
 
@@ -163,7 +163,10 @@ private extension HomeView {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = CoinViewModel(with: CoinDataSourceMock(), and: MarketDataSourceMock())
+        let repo = CryptoRepository(coinDataSource: CoinDataSourceMock(),
+                                    marketDataSource: MarketDataSourceMock(),
+                                    portfolioDataSource: PortfolioDataSourceMock())
+        let viewModel = HomeViewModel(with: repo)
         Group {
             NavigationView {
                 HomeView()

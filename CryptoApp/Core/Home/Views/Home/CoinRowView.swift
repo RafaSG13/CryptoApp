@@ -13,7 +13,7 @@ struct CoinRowView: View {
     }
     let coin: Coin
     let showMarketInfoColumn: Bool
-    @EnvironmentObject private var viewModel: CoinViewModel
+    @EnvironmentObject private var viewModel: HomeViewModel
 
     var body: some View {
         HStack(spacing: 0) {
@@ -83,7 +83,10 @@ extension CoinRowView {
 
 struct CoinRowView_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = CoinViewModel(with: CoinDataSourceMock(), and: MarketDataSourceMock())
+        let repo = CryptoRepository(coinDataSource: CoinDataSourceMock(),
+                                    marketDataSource: MarketDataSourceMock(),
+                                    portfolioDataSource: PortfolioDataSourceMock())
+        let viewModel = HomeViewModel(with: repo)
         Group {
             CoinRowView(coin: CoinPreviewMock.instance(), showMarketInfoColumn: true)
                 .environmentObject(viewModel)
@@ -95,7 +98,7 @@ struct CoinRowView_Previews: PreviewProvider {
                 .preferredColorScheme(.dark)
                 .previewLayout(.sizeThatFits)
         }.task {
-            try? await viewModel.getCoinInfo() 
+            try? await viewModel.setViewModel() 
         }
     }
 }
