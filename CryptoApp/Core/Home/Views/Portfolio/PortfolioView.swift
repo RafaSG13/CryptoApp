@@ -12,6 +12,9 @@ struct PortfolioView: View {
     @State private var selectedCoin: Coin? = nil
     @State private var quantityText: String = ""
     @State private var showCheckmark: Bool = false
+    @Environment(\.dismiss) private var dismiss
+
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -27,7 +30,7 @@ struct PortfolioView: View {
             .navigationTitle("Edit Portfolio")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) { saveButton }
-                ToolbarItem(placement: .topBarLeading) { XmarkButton() }
+                ToolbarItem(placement: .topBarLeading) { closeButton }
             }
             .onChange(of: viewModel.searchText) {
                 if viewModel.searchText == "" { removeSelectedCoin() }
@@ -114,8 +117,17 @@ extension PortfolioView {
             Button {
                 savedButtonPressed()
             } label: {
-                Text("Save".uppercased())
+                Text("Save")
             }
+        }
+    }
+
+    private var closeButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Image(systemName: "xmark")
+                .font(.headline)
         }
     }
 }
@@ -168,7 +180,7 @@ struct PortfolioView_Previews: PreviewProvider {
         let viewModel = HomeViewModel(with: repo)
         Group {
             PortfolioView()
-                .environmentObject(viewModel)
+            .environmentObject(viewModel)
         }
 
     }

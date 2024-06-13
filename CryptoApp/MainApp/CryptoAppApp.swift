@@ -12,7 +12,8 @@ struct CryptoAppApp: App {
     @StateObject var viewModel = HomeViewModel(with: CryptoRepository(coinDataSource: CoinDataSource(),
                                                                       marketDataSource: MarketDataSource(),
                                                                       portfolioDataSource: PortfolioDataSource()))
-    @State private var showLaunchView: Bool = false
+    @State private var showLaunchView: Bool = true
+    @State private var viewModelLoaded: Bool = false
 
     init() {
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color.theme.accentColor)]
@@ -27,15 +28,15 @@ struct CryptoAppApp: App {
                         .navigationBarHidden(true)
                 }
                 .environmentObject(viewModel)
-                if showLaunchView {
-                    LaunchView(showHomeScreen: $showLaunchView)
-                        .transition(.move(edge: .leading))
-                }
+                LaunchView()
+                    .opacity(showLaunchView ? 1 : 0)
+                    .animation(.easeOut(duration: 0.5))
             }
             .zIndex(2.0)
             .task(priority: .high) {
                 do {
                     try await viewModel.setViewModel()
+                    withAnimation { showLaunchView.toggle() }
                 } catch let error {
                     print(error.localizedDescription)
                 }
