@@ -11,18 +11,12 @@ import SwiftUI
 
 
 protocol MarketDataSourceProtocol {
-    var marketDataDriver: Published<MarketData?>.Publisher { get }
-    func getMarketData() async throws
+    func getMarketData() async throws -> MarketData
 }
 
-class MarketDataSource: MarketDataSourceProtocol {
-    
-    @Published private var marketData: MarketData? = nil
-    var marketDataDriver: Published<MarketData?>.Publisher { $marketData }
+final class MarketDataSource: MarketDataSourceProtocol {
 
-    init() {}
-
-    func getMarketData() async throws {
+    func getMarketData() async throws -> MarketData {
         let endpoint = MarketInfoEndPoint()
         guard let request = endpoint.createUrlRequest() else { throw URLError(.badURL) }
 
@@ -30,7 +24,7 @@ class MarketDataSource: MarketDataSourceProtocol {
         switch result {
         case .success(let data):
             let marketInfoResponse = try JSONDecoder().decode(MarketInfoResponse.self, from: data)
-            self.marketData =  marketInfoResponse.data
+            return marketInfoResponse.data
         case.failure(let error):
             print("Error in parsing response \(error)")
             throw NetworkingError.requestError(error: error)

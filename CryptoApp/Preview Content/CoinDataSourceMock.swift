@@ -9,25 +9,15 @@ import Foundation
 import SwiftUI
 
 final class CoinDataSourceMock: CoinDataSourceProtocol {
-    
-    @Published private var coins: [Coin] = []
-
-    @Published private var metadata: [Int: Metadata] = [:]
-
-    @Published private var images: [Int: Data] = [:]
-
-    var allCoins: Published<[Coin]>.Publisher { $coins }
-    var coinMetadata: Published<[Int: Metadata]>.Publisher { $metadata }
-    var coinImages: Published<[Int: Data]>.Publisher { $images }
+    private var images: [Int: Data] = [:]
 
     func getCoins() async throws -> [Coin]{
-        coins = [CoinPreviewMock.instance(), CoinPreviewMock.instance(), CoinPreviewMock.instance()]
-        return coins
+        return [CoinPreviewMock.instance(), CoinPreviewMock.instance(), CoinPreviewMock.instance()]
     }
 
     func getCoinsMetadata() async throws -> [Int: Metadata] {
-        metadata = [1: MetadataMock.instance(), 2: MetadataMock.instance(), 3: MetadataMock.instance()]
-        return metadata
+       return [1: MetadataMock.instance(), 2: MetadataMock.instance(), 3: MetadataMock.instance()]
+
     }
 
     func getCoinImages() async -> [Int: Data] {
@@ -42,6 +32,6 @@ final class CoinDataSourceMock: CoinDataSourceProtocol {
     }
 
     func getRemoteCoinMetadata(coinId: Int) -> Metadata? {
-        return metadata[coinId]
+        return MetadataMock.instance()
     }
 }

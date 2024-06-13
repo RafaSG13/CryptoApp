@@ -96,7 +96,7 @@ struct CoinRowView_Previews: PreviewProvider {
                 .preferredColorScheme(.dark)
                 .previewLayout(.sizeThatFits)
         }.task {
-            try? await viewModel.getCoinInfo() 
+            try? await viewModel.setViewModel() 
         }
     }
 }

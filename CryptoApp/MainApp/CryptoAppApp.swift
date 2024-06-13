@@ -33,8 +33,7 @@ struct CryptoAppApp: App {
             .zIndex(2.0)
             .task(priority: .high) {
                 do {
-                    try await viewModel.getCoinInfo()
-                    try await viewModel.getMarketInfo()
+                    try await viewModel.setViewModel()
                 } catch let error {
                     print(error.localizedDescription)
                 }

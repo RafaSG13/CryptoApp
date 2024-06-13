@@ -42,7 +42,7 @@ extension PortfolioView {
     private var coinHorizontalList: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 10) {
-                ForEach(viewModel.searchText.isEmpty ? viewModel.portfolioCoin : viewModel.allCoins) { coin in
+                ForEach(viewModel.searchText.isEmpty ? viewModel.portfolioCoin : viewModel.repository.coins) { coin in
                     VStack {
                         CircularImageView(coinLogo: viewModel.getCoinImage(for: coin.id))
                             .frame(width: 50)

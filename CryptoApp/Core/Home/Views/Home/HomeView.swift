@@ -82,7 +82,7 @@ extension HomeView {
 
     private var coinsList: some View  {
         List {
-            ForEach(viewModel.allCoins) { coin in
+            ForEach(viewModel.repository.coins) { coin in
                 CoinRowView(coin: coin,
                             showMarketInfoColumn: false)
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))

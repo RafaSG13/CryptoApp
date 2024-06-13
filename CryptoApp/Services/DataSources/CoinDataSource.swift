@@ -11,27 +11,17 @@ import SwiftUI
 
 
 protocol CoinDataSourceProtocol {
-    var allCoins: Published<[Coin]>.Publisher { get }
-    var coinMetadata: Published<[Int: Metadata]>.Publisher { get }
-    var coinImages: Published<[Int: Data]>.Publisher { get }
-
     func getCoins() async throws -> [Coin]
     func getCoinsMetadata() async throws -> [Int : Metadata]
     func getCoinImages() async -> [Int: Data]
 }
 
-class CoinDataSource: CoinDataSourceProtocol {
-    @Published private var coins: [Coin] = []
-    @Published private var metadata: [Int: Metadata] = [:]
-    @Published private var images: [Int: Data] = [:]
-
-    var allCoins: Published<[Coin]>.Publisher { $coins }
-    var coinMetadata: Published<[Int: Metadata]>.Publisher { $metadata }
-    var coinImages: Published<[Int: Data]>.Publisher { $images }
+final class CoinDataSource: CoinDataSourceProtocol {
+    private var coins: [Coin] = []
+    private var metadata: [Int: Metadata] = [:]
+    private var images: [Int: Data] = [:]
 
     let imageCache = Cache<String, Data>()
-
-    init() {}
 
     func getCoins() async throws -> [Coin] {
         let endpoint = CoinListingRequestEndpoint()
