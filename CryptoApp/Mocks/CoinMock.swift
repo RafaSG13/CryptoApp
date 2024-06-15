@@ -7,8 +7,8 @@
 
 import Foundation
 
-class CoinPreviewMock {
-    static func instance() -> Coin{
+class CoinMock {
+    static func bitcoin() -> Coin {
         let mockCoin = Coin(
             id: 1,
             name: "Bitcoin",
@@ -16,7 +16,6 @@ class CoinPreviewMock {
             slug: "bitcoin",
             numMarketPairs: 11077,
             dateAdded: "2010-07-13T00:00:00.000Z",
-
             tags: [
                 "mineable",
                 "pow",
@@ -75,5 +74,69 @@ class CoinPreviewMock {
         )
         return mockCoin
     }
-}
 
+    static func ethereum() -> Coin {
+        let mockCoin = Coin(
+            id: 1027,
+            name: "Ethereum",
+            symbol: "ETH",
+            slug: "ethereum",
+            numMarketPairs: 6317,
+            dateAdded: "2015-08-07T00:00:00.000Z",
+            tags: [
+                "mineable",
+                "pow",
+                "smart-contracts",
+                "ethereum",
+                "coinbase-ventures-portfolio",
+                "three-arrows-capital-portfolio",
+                "polychain-capital-portfolio",
+                "binance-labs-portfolio",
+                "blockchain-capital-portfolio",
+                "boostvc-portfolio",
+                "cms-holdings-portfolio",
+                "dcg-portfolio",
+                "dragonfly-capital-portfolio",
+                "electric-capital-portfolio",
+                "fabric-ventures-portfolio",
+                "framework-ventures-portfolio",
+                "galaxy-digital-portfolio",
+                "huobi-capital-portfolio",
+                "alameda-research-portfolio",
+                "a16z-portfolio",
+                "1confirmation-portfolio",
+                "winklevoss-capital-portfolio",
+                "usv-portfolio",
+                "placeholder-ventures-portfolio",
+                "pantera-capital-portfolio",
+                "multicoin-capital-portfolio",
+                "paradigm-portfolio",
+                "ethereum-ecosystem"
+            ],
+            maxSupply: nil,
+            circulatingSupply: 120000000,
+            totalSupply: 120000000,
+            platform: nil,
+            cmcRank: 2,
+            lastUpdated: "2024-05-30T11:18:00.000Z",
+            quote: [
+                "USD": Quote(
+                    price: 2000.1234,
+                    volume24h: 14567812345.6789,
+                    volumeChange24h: -2.3456,
+                    percentChange1h: 0.1234,
+                    percentChange24h: 1.5678,
+                    percentChange7d: -0.9876,
+                    percentChange30d: 5.6789,
+                    percentChange60d: -1.2345,
+                    percentChange90d: 3.4567,
+                    marketCap: 240000000000.1234,
+                    marketCapDominance: 18.2345,
+                    fullyDilutedMarketCap: 240000000000.1234,
+                    tvl: 123456789
+                )
+            ]
+        )
+        return mockCoin
+    }
+}

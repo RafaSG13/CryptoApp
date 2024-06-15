@@ -10,11 +10,10 @@ import SwiftUI
 
 final class MarketDataSourceMock: MarketDataSourceProtocol {
     @Published private var marketData: MarketData? = nil
-
     var driver: Published<MarketData?>.Publisher { $marketData }
 
     func fetchMarketData() async throws {
-        //Unimplemented
+        marketData = MarketDataMock.instance()
     }
     
     func read() -> MarketData? {
