@@ -42,10 +42,14 @@ struct CoinDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 Text(coin.name)
-                    .frame(height: 150, alignment: .topLeading)
+                    .frame(alignment: .topLeading)
                     .font(.title)
                     .bold()
                     .foregroundStyle(Color.theme.accentColor)
+                    .padding(.vertical)
+
+                ChartView(data: detailVM.getCoinChartData())
+                    .frame(maxWidth: .infinity, idealHeight: 150, alignment: .topLeading)
 
                 overViewTitle
                 Divider()
@@ -69,7 +73,10 @@ struct CoinDetailView: View {
                         .foregroundStyle(Color.theme.accentColor)
                 }
             }
-        }.padding()
+        }
+        .task {
+            detailVM.setViewModel()
+        }
      }
 }
 
@@ -93,8 +100,8 @@ extension CoinDetailView {
                   alignment: .leading,
                   spacing: ViewConstants.gridSpacing,
                   content: {
-            ForEach(0..<4) { _ in
-                StatisticView(stat: StatisticMock.sampleStatistic)
+            ForEach(detailVM.overViewStats) { stat in
+                StatisticView(stat: stat)
             }
         })
     }
@@ -112,8 +119,8 @@ extension CoinDetailView {
                   alignment: .leading,
                   spacing: ViewConstants.gridSpacing,
                   content: {
-            ForEach(0..<4) { _ in
-                StatisticView(stat: StatisticMock.sampleStatistic)
+            ForEach(detailVM.additionalStats) { stat in
+                StatisticView(stat: stat)
             }
         })
     }

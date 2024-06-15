@@ -29,7 +29,7 @@ struct HomeView: View {
                 }
             VStack {
                 homeHeaderView
-                StatisticHeaderView(showPortfolio: $showPortfolio)
+                StatisticHeaderView(showPortfolio: $showPortfolio, maxHeight: 50.0)
                 SearchBarView(searchText: $viewModel.searchText)
                 columnsHeader
                 if !showPortfolio {
@@ -173,12 +173,18 @@ struct HomeView_Previews: PreviewProvider {
                     .navigationBarHidden(true)
                     .environmentObject(viewModel)
                     .preferredColorScheme(.light)
+                    .task {
+                        try? await viewModel.setViewModel()
+                    }
             }
             NavigationView {
                 HomeView()
                     .navigationBarHidden(true)
                     .environmentObject(viewModel)
                     .preferredColorScheme(.dark)
+                    .task {
+                        try? await viewModel.setViewModel()
+                    }
             }
         }
     }

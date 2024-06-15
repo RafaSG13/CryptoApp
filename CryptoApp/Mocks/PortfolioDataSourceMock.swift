@@ -24,7 +24,6 @@ final class PortfolioDataSourceMock: PortfolioDataSourceProtocol {
         }
     }
 
-    // Mock-specific methods to manipulate data
     private func addCoin(coin: Coin, amount: Double) {
         let entity = Portfolio()
         entity.coinId = Int64(coin.id)

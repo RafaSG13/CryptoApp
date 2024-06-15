@@ -18,31 +18,29 @@ final class CoinDataSourceMock: CoinDataSourceProtocol {
     var metadataDriver: Published<[Int : Metadata]>.Publisher { $metadata }
     
     func fetchCoins() async throws {
-        //Unimplemented
+        coins = [CoinMock.bitcoin(), CoinMock.ethereum()]
     }
     
     func fetchMetadata() async throws {
-        //Unimplemented
+        metadata =  [1: MetadataMock.instance(), 2: MetadataMock.instance(), 3: MetadataMock.instance()]
     }
     
     func fetchCoinImages() async {
-        //Unimplemented
+        guard let uiImage = UIImage(named: "CoinImageMock"),
+              let data = uiImage.pngData() else { return }
+        images = [1: data, 2: data, 3: data]
     }
     
     func readCoins() -> [Coin] {
-        return [CoinPreviewMock.instance(), CoinPreviewMock.instance(), CoinPreviewMock.instance()]
+        return coins
     }
     
     func readImages() -> [Int : Data] {
-        guard let uiImage = UIImage(named: "CoinImageMock"),
-              let data = uiImage.pngData() else { return [:] }
-        images = [1: data, 2: data, 3: data]
         return images
     }
     
     func readMetadata() -> [Int : Metadata] {
-        return [1: MetadataMock.instance(), 2: MetadataMock.instance(), 3: MetadataMock.instance()]
-
+        return metadata
     }
     
     func updateCoins(_ coins: [Coin]) {

@@ -88,12 +88,12 @@ struct CoinRowView_Previews: PreviewProvider {
                                     portfolioDataSource: PortfolioDataSourceMock())
         let viewModel = HomeViewModel(with: repo)
         Group {
-            CoinRowView(coin: CoinPreviewMock.instance(), showMarketInfoColumn: true)
+            CoinRowView(coin: CoinMock.bitcoin(), showMarketInfoColumn: true)
                 .environmentObject(viewModel)
                 .preferredColorScheme(.light)
                 .previewLayout(.sizeThatFits)
 
-            CoinRowView(coin: CoinPreviewMock.instance(), showMarketInfoColumn: true)
+            CoinRowView(coin: CoinMock.bitcoin(), showMarketInfoColumn: true)
                 .environmentObject(viewModel)
                 .preferredColorScheme(.dark)
                 .previewLayout(.sizeThatFits)
