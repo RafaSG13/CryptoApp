@@ -40,9 +40,9 @@ CryptoApp es una aplicación que proporciona información sobre criptomonedas ut
 ## Estructura del Proyecto
 El proyecto sigue una arquitectura basada en MVVM, con un ViewModel por View. En este caso, como los respectivos viewModel requerían de los mismos datos, he implementado un repository, encargado de gestionar las diferentes fuentes de datos del proyecto, desde la informacion superficial de las monedas, hasta las imagenes de las mismas y la informacion del mecado.
 <img width="500" alt="Arquitectura de CryptoApp" src="https://github.com/RafaSG13/CryptoApp/assets/58252921/1c752cf1-f449-4b9c-bc31-5fe69004e3cc">
-<img width="300" alt="Coin list" src="https://github.com/RafaSG13/CryptoApp/assets/58252921/1c752cf1-f449-4b9c-bc31-5fe69004e3cc">
-<img width="300" alt="Edit portfolio" src="https://github.com/RafaSG13/CryptoApp/assets/58252921/1c752cf1-f449-4b9c-bc31-5fe69004e3cc">
-<img width="300" alt="Coin details" src="https://github.com/RafaSG13/CryptoApp/assets/58252921/1c752cf1-f449-4b9c-bc31-5fe69004e3cc">
+<img width="300" alt="Coin list" src="https://github.com/RafaSG13/CryptoApp/assets/58252921/b51458b7-9fab-4b20-ae80-cd348ce649ba">
+<img width="300" alt="Edit portfolio" src="https://github.com/RafaSG13/CryptoApp/assets/58252921/e31aba55-76b8-4900-bd6a-2b5c1b107911">
+<img width="300" alt="Coin details" src="https://github.com/RafaSG13/CryptoApp/assets/58252921/a019a20a-b442-4d08-9bd6-0e7115e2295b">
 
 
 ## Contacto
