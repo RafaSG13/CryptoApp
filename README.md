@@ -49,7 +49,7 @@ El proyecto sigue una arquitectura basada en MVVM, con un ViewModel por View. En
 
 ## Contacto
 
-Para cualquier pregunta o sugerencia, por favor contacta a [rafasrrg13@gmail.com].
+Para cualquier pregunta o sugerencia, por favor contacta a rafasrrg13@gmail.com.
 
 ---
 
