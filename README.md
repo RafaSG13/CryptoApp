@@ -38,9 +38,10 @@ CryptoApp es una aplicación que proporciona información sobre criptomonedas ut
 
 ## Estructura del Proyecto
 El proyecto sigue una arquitectura basada en MVVM, con un ViewModel por View. En este caso, como los respectivos viewModel requerían de los mismos datos, he implementado un repository, encargado de gestionar las diferentes fuentes de datos del proyecto, desde la informacion superficial de las monedas, hasta las imagenes de las mismas y la informacion del mecado.
+
 <img width="500" alt="Arquitectura de CryptoApp" src="https://github.com/RafaSG13/CryptoApp/assets/58252921/1c752cf1-f449-4b9c-bc31-5fe69004e3cc">
 
-
+## Resultados
 
 |                 List                 |                 Edit Portfolio                  |                 Coin Detail                 |
 |:------------------------------------:|:-----------------------------------------------:|:-------------------------------------------:|
